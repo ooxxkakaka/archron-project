@@ -68,17 +68,38 @@
   --font-sans: "Inclusive Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --font-display: "Cabin", "Gill Sans", "Gill Sans MT", "PingFang SC", "Hiragino Sans GB", sans-serif;
 
-  /* 字号层级：标签 / 图注 / 界面 / 正文 / 导语 / 页标题 / 作品标题 */
+  /* 字号层级：标签 / 图注 / 界面 / 次级说明 / 长文 / 条目 / 署名 / 页标题 / 作品标题 */
   --text-micro: 10px;
   --text-meta: 11px;
   --text-ui: 12px;
   --text-body: 13px;
+  --text-read: 15px;
+  --text-entry: 14px;
+  --text-credit: 18px;
   --text-page: clamp(30px, 3vw, 44px);
   --text-display: clamp(36px, 4.8vw, 72px);
 
-  --track-label: 0.14em;
+  /* 字距：大写标签正向放宽，其余随字号同向收紧 */
+  --track-label: 0.12em;
+  --track-read: -0.01em;
   --track-tight: -0.012em;
   --track-display: -0.02em;
+
+  /* 长文用可变字体的 380 档：比 400 轻，但不虚 */
+  --weight-read: 380;
+
+  /* 中文长文比英文小 1pt：汉字字面大，同字号下灰度更重。
+     14px × 1.6 = 22.4px 行槽，和英文 15px × 1.5 = 22.5px 基本同网格 */
+  --text-read-zh: 14px;
+  --lh-read-zh: 1.6;
+
+  /* 长文行宽：英文 490px 约 60 字符；中文 35em = 490px，右沿和英文对齐 */
+  --measure: 490px;
+  --measure-zh: 35em;
+
+  /* 栏位：标签列 + 栏距 + 阅读列，全站同一套坐标系 */
+  --col-label: 120px;
+  --gap-col: 32px;
 
   --max: 1440px;
   --gutter: clamp(20px, 4vw, 64px);
@@ -106,7 +127,7 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: var(--text-ui);
-  line-height: 1.6;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -188,7 +209,7 @@ a {
   gap: 4px clamp(16px, 2.2vw, 32px);
   font-size: var(--text-ui);
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: var(--track-read);
   line-height: 1.2;
   color: var(--muted);
 }
@@ -219,6 +240,7 @@ a {
   padding: 20px var(--gutter) 28px;
   border-top: 1px solid var(--line-strong);
   font-size: var(--text-meta);
+  letter-spacing: var(--track-read);
   color: var(--muted);
 }
 
@@ -327,10 +349,10 @@ a {
 .tile__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 13.5px;
+  font-size: var(--text-entry);
   font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.002em;
+  line-height: 1.25;
+  letter-spacing: var(--track-read);
 }
 
 .tile__link:hover .tile__title {
@@ -341,7 +363,7 @@ a {
 
 .tile__by {
   font-size: var(--text-meta);
-  line-height: 1.4;
+  letter-spacing: var(--track-read);
   color: var(--muted);
 }
 
@@ -364,6 +386,7 @@ a {
 
 .tile__empty-note {
   font-size: var(--text-meta);
+  letter-spacing: var(--track-read);
   color: var(--muted);
 }
 
@@ -404,31 +427,20 @@ a {
 
 /* ---------- publication detail ---------- */
 
-.work {
+/* 出版物详情页与活动页共用同一套页面外壳，根类不同，避免脚本互相命中 */
+.work,
+.event-page {
   max-width: var(--max);
   margin: 0 auto;
   padding: clamp(28px, 4vw, 56px) var(--gutter) clamp(28px, 4vw, 44px);
 }
 
 .work__head {
-  max-width: 1180px;
-  margin: 0 auto;
   border-bottom: 1px solid var(--line);
 }
 
-.work__no {
-  margin: 0 0 18px;
-  font-family: var(--font-display);
-  font-size: var(--text-meta);
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
 .work__title {
-  margin: 0 0 22px;
+  margin: 0 0 14px;
   font-family: var(--font-display);
   font-size: var(--text-display);
   font-weight: 700;
@@ -437,30 +449,32 @@ a {
   text-wrap: balance;
 }
 
+/* 署名与标题同一左栏、紧贴标题下沿；层级靠字重与位置，不靠右推 */
 .work__people {
-  margin: 0 0 clamp(28px, 3.2vw, 40px);
+  margin: 0 0 24px;
   font-family: var(--font-display);
-  font-size: clamp(17px, 1.35vw, 20px);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.002em;
+  font-size: var(--text-credit);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: var(--track-read);
 }
 
 .work__people a {
-  text-decoration: underline;
-  text-decoration-color: var(--line);
-  text-underline-offset: 4px;
+  text-decoration: none;
 }
 
 .work__people a:hover {
   color: var(--accent);
-  text-decoration-color: currentColor;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
 }
 
 .work__meta {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  max-width: 680px;
+  grid-template-columns: var(--col-label) minmax(0, 1fr);
+  column-gap: var(--gap-col);
+  max-width: calc(var(--col-label) + var(--gap-col) + var(--measure));
   margin: 0;
   padding: 0;
   border-top: 1px solid var(--line);
@@ -488,6 +502,7 @@ a {
   border-bottom: 1px solid var(--line-soft);
   font-size: var(--text-body);
   line-height: 1.5;
+  letter-spacing: var(--track-read);
 }
 
 .work__meta dt:last-of-type,
@@ -498,10 +513,10 @@ a {
 .work__intro,
 .work__colophon {
   display: grid;
-  grid-template-columns: 140px minmax(0, 1fr);
-  gap: 6px clamp(24px, 5vw, 80px);
-  max-width: 1180px;
-  margin: 0 auto;
+  grid-template-columns: var(--col-label) minmax(0, 1fr);
+  gap: 6px var(--gap-col);
+  max-width: calc(var(--col-label) + var(--gap-col) + var(--measure));
+  margin: 0;
 }
 
 .work__intro {
@@ -520,22 +535,26 @@ a {
 }
 
 .work__intro-body {
-  max-width: 62ch;
+  min-width: 0;
 }
 
 .work__intro-body p {
   margin: 0;
-  font-size: var(--text-body);
-  line-height: 1.75;
+  font-size: var(--text-read);
+  font-weight: var(--weight-read);
+  line-height: 1.5;
+  letter-spacing: var(--track-read);
 }
 
 .work__intro-body p + p {
-  margin-top: 14px;
+  margin-top: 17px;
 }
 
 .work__intro-body p:lang(zh-Hans) {
-  max-width: 34em;
-  line-height: 1.95;
+  max-width: var(--measure-zh);
+  font-size: var(--text-read-zh);
+  font-weight: 400;
+  line-height: var(--lh-read-zh);
   letter-spacing: 0.01em;
 }
 
@@ -546,9 +565,10 @@ a {
 }
 
 .work__colophon-body {
-  max-width: 46em;
-  font-size: var(--text-ui);
-  line-height: 1.7;
+  min-width: 0;
+  font-size: var(--text-body);
+  line-height: 1.5;
+  letter-spacing: var(--track-read);
   color: var(--muted);
 }
 
@@ -559,8 +579,10 @@ a {
 .work__colophon-body .work__colophon-title {
   margin-bottom: 10px;
   font-family: var(--font-display);
-  font-size: 14px;
+  font-size: var(--text-entry);
   font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: var(--track-read);
   color: var(--ink);
 }
 
@@ -572,8 +594,6 @@ a {
   display: flex;
   flex-direction: column;
   gap: clamp(26px, 4vw, 58px);
-  max-width: 1180px;
-  margin: 0 auto;
   padding-top: clamp(32px, 5vw, 64px);
 }
 
@@ -612,17 +632,26 @@ a {
 .plate__cap {
   margin-top: 8px;
   font-size: var(--text-meta);
-  line-height: 1.45;
+  line-height: 1.5;
+  letter-spacing: var(--track-read);
   color: var(--muted);
   text-align: right;
+}
+
+/* 活动详情页复用详情页的栏位与图版，只把相册标签单独提到图片上方 */
+.event-page__label {
+  padding-top: clamp(32px, 5vw, 64px);
+}
+
+.event-page__label + .work__plates {
+  padding-top: 16px;
 }
 
 .work__nav {
   display: flex;
   justify-content: space-between;
   gap: 24px;
-  max-width: 1180px;
-  margin: clamp(28px, 4vw, 44px) auto 0;
+  margin-top: clamp(28px, 4vw, 44px);
   padding-top: 14px;
   border-top: 1px solid var(--line);
 }
@@ -783,8 +812,8 @@ a {
 .page-head p {
   margin: 0;
   font-size: var(--text-ui);
-  line-height: 1.5;
-  letter-spacing: 0.01em;
+  line-height: 1.45;
+  letter-spacing: var(--track-read);
   color: var(--muted);
   text-align: right;
 }
@@ -792,6 +821,7 @@ a {
 .back-link {
   margin: 0 0 18px;
   font-size: var(--text-meta);
+  letter-spacing: var(--track-read);
 }
 
 .back-link a {
@@ -832,7 +862,7 @@ a {
   margin-bottom: 22px;
 }
 
-/* 归档表：数据列按内容给宽度，最后一列吸收剩余空间，行线铺满页面 */
+/* 归档表：只保留姓名列，行线铺满页面 */
 .people-table {
   width: 100%;
   max-width: 100%;
@@ -867,7 +897,8 @@ a {
 .people-table tbody th,
 .people-table tbody td {
   font-size: var(--text-ui);
-  line-height: 1.5;
+  line-height: 1.45;
+  letter-spacing: var(--track-read);
   color: var(--muted);
 }
 
@@ -877,26 +908,20 @@ a {
   font-family: var(--font-display);
   font-size: var(--text-meta);
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--track-label);
   color: var(--muted);
   white-space: nowrap;
 }
 
-/* 列宽写在 JS 生成的 <colgroup> 里：最后一列不指定，吸收剩余空间 */
+/* 列宽写在 JS 生成的 <colgroup> 里：字母列 30px，姓名列吸收剩余空间 */
 .people-table__name {
   font-family: var(--font-display);
-  font-size: 13.5px;
+  font-size: var(--text-entry);
   font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: 0.002em;
+  line-height: 1.25;
+  letter-spacing: var(--track-read);
   color: var(--ink);
   text-decoration: none;
-}
-
-.people-table__count {
-  padding-right: 0;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 .people-table tbody tr:hover .people-table__name {
@@ -920,10 +945,20 @@ a {
 }
 
 .person__bio p {
-  margin: 0 0 14px;
-  max-width: 62ch;
-  font-size: var(--text-body);
-  line-height: 1.75;
+  margin: 0 0 17px;
+  max-width: var(--measure);
+  font-size: var(--text-read);
+  font-weight: var(--weight-read);
+  line-height: 1.5;
+  letter-spacing: var(--track-read);
+}
+
+.person__bio p:lang(zh-Hans) {
+  max-width: var(--measure-zh);
+  font-size: var(--text-read-zh);
+  font-weight: 400;
+  line-height: var(--lh-read-zh);
+  letter-spacing: 0.01em;
 }
 
 .person__bio p:last-child {
@@ -939,6 +974,8 @@ a {
   margin: 0;
   padding: 0;
   font-size: var(--text-ui);
+  line-height: 1.45;
+  letter-spacing: var(--track-read);
 }
 
 .person__links li + li {
@@ -989,15 +1026,16 @@ a {
 
 .work-list__title {
   font-family: var(--font-display);
-  font-size: 15.5px;
+  font-size: var(--text-entry);
   font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: 0.002em;
+  line-height: 1.25;
+  letter-spacing: var(--track-read);
 }
 
 .work-list__meta {
   font-size: var(--text-ui);
-  line-height: 1.4;
+  line-height: 1.45;
+  letter-spacing: var(--track-read);
   color: var(--muted);
   text-align: right;
 }
@@ -1012,9 +1050,9 @@ a {
 
 .about-grid {
   display: grid;
-  grid-template-columns: 140px minmax(0, 1fr);
+  grid-template-columns: var(--col-label) minmax(0, var(--measure));
   align-items: start;
-  gap: 8px clamp(24px, 5vw, 80px);
+  gap: 8px var(--gap-col);
   padding-top: clamp(20px, 3vw, 28px);
 }
 
@@ -1028,32 +1066,29 @@ a {
   color: var(--muted);
 }
 
-.about__body {
-  max-width: 760px;
-}
-
 .about__block + .about__block {
   margin-top: 44px;
   padding-top: 32px;
   border-top: 1px solid var(--line-soft);
 }
 
+/* 导语不做大字，和正文同一档，只作为开篇段落 */
 .about__lead {
-  margin: 0 0 30px;
-  max-width: 26ch;
-  font-family: var(--font-display);
-  font-size: clamp(26px, 2.4vw, 36px);
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  text-wrap: balance;
+  margin: 0 0 17px;
+  max-width: var(--measure);
+  font-size: var(--text-read);
+  font-weight: var(--weight-read);
+  line-height: 1.5;
+  letter-spacing: var(--track-read);
 }
 
 .about__text p {
-  margin: 0 0 16px;
-  max-width: 62ch;
-  font-size: 13.5px;
-  line-height: 1.72;
+  margin: 0 0 17px;
+  max-width: var(--measure);
+  font-size: var(--text-read);
+  font-weight: var(--weight-read);
+  line-height: 1.5;
+  letter-spacing: var(--track-read);
 }
 
 .about__text p:last-child {
@@ -1061,18 +1096,18 @@ a {
 }
 
 .about__block:lang(zh-Hans) .about__lead {
-  max-width: 24em;
-  font-family: var(--font-sans);
-  font-size: clamp(21px, 2vw, 28px);
-  font-weight: 500;
-  line-height: 1.55;
+  max-width: var(--measure-zh);
+  font-size: var(--text-read-zh);
+  font-weight: 400;
+  line-height: var(--lh-read-zh);
   letter-spacing: 0.01em;
 }
 
 .about__block:lang(zh-Hans) .about__text p {
-  max-width: 34em;
-  font-size: 13.5px;
-  line-height: 1.9;
+  max-width: var(--measure-zh);
+  font-size: var(--text-read-zh);
+  font-weight: 400;
+  line-height: var(--lh-read-zh);
   letter-spacing: 0.01em;
 }
 
@@ -1081,7 +1116,8 @@ a {
   padding-top: 14px;
   border-top: 1px solid var(--line-soft);
   font-size: var(--text-ui);
-  line-height: 1.5;
+  line-height: 1.45;
+  letter-spacing: var(--track-read);
 }
 
 .about__contact a {
@@ -1105,9 +1141,9 @@ a {
 
 .event {
   display: grid;
-  grid-template-columns: minmax(0, 150px) minmax(0, 1fr) auto;
+  grid-template-columns: var(--col-label) minmax(0, 1fr) auto;
   align-items: start;
-  gap: 8px clamp(20px, 3vw, 40px);
+  gap: 8px var(--gap-col);
   padding: 22px 0 24px;
   border-bottom: 1px solid var(--line-soft);
 }
@@ -1117,9 +1153,10 @@ a {
   font-family: var(--font-display);
   font-size: var(--text-meta);
   font-weight: 600;
-  letter-spacing: 0.08em;
-  line-height: 1.5;
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
+  /* 120px 标签列放不下整串日期，均衡断行让两行长度接近，不留孤零的年份 */
+  text-wrap: balance;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1134,7 +1171,7 @@ a {
   font-size: clamp(18px, 1.6vw, 22px);
   font-weight: 600;
   line-height: 1.2;
-  letter-spacing: -0.004em;
+  letter-spacing: var(--track-read);
 }
 
 .event__title a {
@@ -1149,37 +1186,42 @@ a {
 
 .event__title-zh {
   display: block;
-  margin-top: 3px;
+  margin-top: 4px;
   font-family: var(--font-sans);
-  font-size: var(--text-body);
-  font-weight: 400;
+  font-size: var(--text-read);
+  font-weight: 500;
   line-height: 1.5;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   color: var(--muted);
 }
 
 .event__place {
-  margin: 7px 0 0;
+  margin: 8px 0 0;
   font-size: var(--text-ui);
-  line-height: 1.5;
+  line-height: 1.45;
+  letter-spacing: var(--track-read);
   color: var(--muted);
 }
 
 .event__note {
-  margin: 8px 0 0;
-  max-width: 54ch;
-  font-size: var(--text-ui);
-  line-height: 1.72;
+  margin: 12px 0 0;
+  max-width: var(--measure);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: var(--track-read);
   color: var(--muted);
 }
 
 .event__note + .event__note {
-  margin-top: 3px;
+  margin-top: 4px;
 }
 
 .event__note:lang(zh-Hans) {
-  font-size: var(--text-body);
-  line-height: 1.9;
+  max-width: var(--measure-zh);
+  font-size: var(--text-read-zh);
+  font-weight: 400;
+  line-height: var(--lh-read-zh);
   letter-spacing: 0.01em;
 }
 
@@ -1189,8 +1231,8 @@ a {
   font-family: var(--font-display);
   font-size: var(--text-micro);
   font-weight: 600;
-  letter-spacing: 0.1em;
-  line-height: 1.4;
+  letter-spacing: var(--track-label);
+  line-height: 1.45;
   text-transform: uppercase;
   white-space: nowrap;
   color: var(--muted);
@@ -1204,13 +1246,14 @@ a {
 /* ---------- notice ---------- */
 
 .notice {
-  max-width: 640px;
+  max-width: calc(var(--col-label) + var(--gap-col) + var(--measure));
   margin: clamp(32px, 5vw, 64px) 0;
   padding: 16px 0;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  font-size: var(--text-ui);
-  line-height: 1.6;
+  font-size: var(--text-body);
+  line-height: 1.5;
+  letter-spacing: var(--track-read);
   color: var(--muted);
 }
 
@@ -1239,53 +1282,19 @@ a {
   }
 }
 
+/* 窄屏放不下 120px 的标签列，栏宽收回移动端尺度 */
 @media (max-width: 760px) {
-  .people-table,
-  .people-table tbody,
-  .people-table tr,
-  .people-table th,
-  .people-table td {
-    display: block;
+  :root {
+    --col-label: 96px;
+    --gap-col: 20px;
   }
+}
 
-  .people-table thead {
-    display: none;
-  }
-
-  .people-table tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 16px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--line-soft);
-  }
-
-  .people-table th,
-  .people-table td {
-    padding: 0;
-    border-bottom: 0;
-  }
-
-  .people-table__letter:not(:empty) {
-    grid-column: 1 / -1;
-    padding-bottom: 2px;
-  }
-
-  .people-table__letter:empty {
-    display: none;
-  }
-
-  .people-table__based,
-  .people-table__count {
-    font-size: var(--text-meta);
-  }
-
-  .people-table__based:not(:empty)::before {
-    content: "Based in ";
-  }
-
-  .people-table__count::after {
-    content: " " attr(data-word);
+@media (max-width: 760px) {
+  /* 只剩姓名列，窄屏不必把表格拆成块；字母列收到 24px 就够了 */
+  .people-table th.people-table__letter {
+    width: 24px;
+    padding-right: 10px;
   }
 
   .person__body {
@@ -1304,8 +1313,21 @@ a {
   }
 
   .event__date {
-    grid-column: 1 / -1;
+    grid-column: 1;
+    grid-row: 1;
     padding-top: 0;
+  }
+
+  /* 状态标签和日期同一行，标题行拿回整幅宽度 */
+  .event__status {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .event__body {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   .page-head {
@@ -1342,6 +1364,14 @@ a {
 
   .work__title {
     font-size: clamp(28px, 8vw, 44px);
+  }
+
+  /* 窄屏每行只剩 45 字符左右，英文行高放宽一档到 1.6；中文本来就是 1.6，不再单独覆盖 */
+  .work__intro-body p,
+  .about__lead,
+  .about__text p,
+  .person__bio p {
+    line-height: 1.6;
   }
 
   .work__nav {
