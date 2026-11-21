@@ -27,14 +27,19 @@
       "slug": "jialing-sun",
       "name": "Jialing Sun",
       "role": "Poet, Artist",
-      "based": "Chengdu",
+      "based": "Changzhou",
       "nationality": "",
-      "bio": [],
+      "bio": [
+        "Yichang Sun was born in the waterside towns of Jiangsu, China in 1995, later studied at the School of the Art Institute of Chicago, and currently lives and works in Changzhou. Her practice spans printmaking, painting, and writing, extending into the making of artist books and the running of community workshops. She is drawn to closeness — close enough to see the grooves in bark, the patches of warm and cool light across a shoulder, the small human moments that almost pass unnoticed. Her paintings, her woodblock lines, and her poems share the same instinct: one scene, one person, one fragment, enlarged until it becomes a whole world.",
+        "This cross-cultural experience has rooted her work in the space between two worlds. She writes and paints Black musicians and Mexican migrants, a shoplifter in Carrefour and a security guard in a small port town — people from entirely different places and lives who nonetheless share the same fundamental human condition. She adopts an observer’s gaze: attentive, unhurried, and without judgment.",
+        "Her artist books A Long Day and Olivia’s Little Stones are held in the permanent collections of the School of the Art Institute of Chicago; her work has also been included in Guanxiang, a group exhibition at the Nanjing University of the Arts. In community practice, she has led woodblock printing workshops at Baidu Bookstore and Lushan Community House, and presented an artist book talk at the Liangxi District Library in Wuxi, bringing printmaking and the art of the book into contemporary community spaces. Her poetry, meanwhile, has appeared in Yangtze River Poetry Journal, Poetry Journal, Star Poetry Monthly, and other publications."
+      ],
       "links": []
     }
   ],
   "events": [
     {
+      "slug": "bonjour-art-book-fair",
       "title": { "en": "Bonjour Art Book Fair", "zh": "不熟艺术书展" },
       "city": { "en": "Shanghai", "zh": "上海" },
       "venue": "",
@@ -44,6 +49,7 @@
         "en": "Atelier Archron will present recent publications at the fair.",
         "zh": "Atelier Archron 将携近年出版物参加。"
       },
+      "images": [],
       "link": ""
     }
   ],

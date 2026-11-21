@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Event — ARCHRON PROJECT</title>
+  <meta name="description" content="Book fair poster, promotion and on-site photographs.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style/main.css">
+</head>
+<body class="page-event">
+
+  <header class="site-head">
+    <a class="site-head__name" href="index.html" data-site="name">ARCHRON PROJECT</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Publications</a>
+      <a href="people.html">People</a>
+      <a href="events.html" aria-current="page">Events</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main class="event-page">
+    <header class="work__head">
+      <h1 class="work__title" id="event-title"></h1>
+      <dl class="work__meta" id="event-meta"></dl>
+    </header>
+
+    <section class="work__intro" id="event-intro" aria-labelledby="event-intro-title" hidden>
+      <p class="work__label" id="event-intro-title">About</p>
+      <div class="work__intro-body" id="event-intro-body"></div>
+    </section>
+
+    <p class="work__label event-page__label" id="event-photos-label" hidden>Photographs</p>
+    <div class="work__plates" id="event-plates" hidden></div>
+
+    <nav class="work__nav" id="event-nav" aria-label="Events">
+      <a class="work__nav-link" id="event-prev" hidden></a>
+      <a class="work__nav-link work__nav-link--next" id="event-next" hidden></a>
+    </nav>
+
+    <p class="notice" id="notice" hidden></p>
+  </main>
+
+  <footer class="site-foot">
+    <span>© <span data-site="year">2026</span> <span data-site="copyright">Atelier Archron</span></span>
+    <a data-site="email" href="mailto:" hidden></a>
+  </footer>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Image viewer">
+    <p class="lightbox__count" id="lightbox-count"></p>
+    <button class="lightbox__close" type="button" data-lightbox-close>Close</button>
+    <button class="lightbox__step lightbox__step--prev" type="button" data-lightbox-prev aria-label="Previous image">←</button>
+    <figure class="lightbox__figure">
+      <img class="lightbox__img" id="lightbox-img" alt="">
+      <figcaption class="lightbox__cap" id="lightbox-cap"></figcaption>
+    </figure>
+    <button class="lightbox__step lightbox__step--next" type="button" data-lightbox-next aria-label="Next image">→</button>
+  </dialog>
+
+  <script src="script/main.js" defer></script>
+</body>
+</html>
