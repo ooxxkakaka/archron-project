@@ -3,18 +3,22 @@
     "name": "ARCHRON PROJECT",
     "tagline": "Selected publications and printed matter.",
     "copyright": "Atelier Archron",
-    "email": "",
+    "email": "studio@archronproject.com",
+    "links": [
+      { "label": "Email", "href": "mailto:studio@archronproject.com", "text": "studio@archronproject.com" },
+      { "label": "Instagram", "href": "https://www.instagram.com/archronproject", "text": "@archronproject" }
+    ],
     "about": {
       "languages": ["en"],
       "en": {
-        "lead": "ARCHRON PROJECT is a project of Atelier Archron, a studio for image production and visual culture.",
+        "lead": "Archron project is a project of Atelier Archron, a studio for image production and visual culture.",
         "paragraphs": [
           "The project develops publications with artists, writers and institutions. Format, paper, sequence and distribution are agreed title by title, with the people involved.",
           "This index gathers a selection of those publications. Each title opens onto a sequence of plates; the People index lists the authors, artists and collaborators behind them."
         ]
       },
       "zh": {
-        "lead": "ARCHRON PROJECT 是 Atelier Archron 旗下的出版项目。Atelier Archron 是一家从事图像制作与视觉文化的工作室。",
+        "lead": "Archron project 是 Atelier Archron 的项目计划。Atelier Archron 关注图像生产及视觉文化。",
         "paragraphs": [
           "我们与艺术家、写作者和机构共同出版。开本、纸张、编排与发行方式，由参与者针对每一本书逐一商定。",
           "这里收录其中的一部分出版物。每本书展开为一组版面；People 索引列出参与其中的作者、艺术家与合作者。"
@@ -27,13 +31,27 @@
       "slug": "jialing-sun",
       "name": "Jialing Sun",
       "role": "Poet, Artist",
-      "based": "Changzhou",
-      "nationality": "",
-      "bio": [
-        "Yichang Sun was born in the waterside towns of Jiangsu, China in 1995, later studied at the School of the Art Institute of Chicago, and currently lives and works in Changzhou. Her practice spans printmaking, painting, and writing, extending into the making of artist books and the running of community workshops. She is drawn to closeness — close enough to see the grooves in bark, the patches of warm and cool light across a shoulder, the small human moments that almost pass unnoticed. Her paintings, her woodblock lines, and her poems share the same instinct: one scene, one person, one fragment, enlarged until it becomes a whole world.",
-        "This cross-cultural experience has rooted her work in the space between two worlds. She writes and paints Black musicians and Mexican migrants, a shoplifter in Carrefour and a security guard in a small port town — people from entirely different places and lives who nonetheless share the same fundamental human condition. She adopts an observer’s gaze: attentive, unhurried, and without judgment.",
-        "Her artist books A Long Day and Olivia’s Little Stones are held in the permanent collections of the School of the Art Institute of Chicago; her work has also been included in Guanxiang, a group exhibition at the Nanjing University of the Arts. In community practice, she has led woodblock printing workshops at Baidu Bookstore and Lushan Community House, and presented an artist book talk at the Liangxi District Library in Wuxi, bringing printmaking and the art of the book into contemporary community spaces. Her poetry, meanwhile, has appeared in Yangtze River Poetry Journal, Poetry Journal, Star Poetry Monthly, and other publications."
-      ],
+      "bio": {
+        "en": [
+          "Yichang Sun was born in the waterside towns of Jiangsu, China in 1995, later studied at the School of the Art Institute of Chicago, and currently lives and works in Changzhou. Her practice spans printmaking, painting, and writing, extending into the making of artist books and the running of community workshops. She is drawn to closeness — close enough to see the grooves in bark, the patches of warm and cool light across a shoulder, the small human moments that almost pass unnoticed. Her paintings, her woodblock lines, and her poems share the same instinct: one scene, one person, one fragment, enlarged until it becomes a whole world.",
+          "This cross-cultural experience has rooted her work in the space between two worlds. She writes and paints Black musicians and Mexican migrants, a shoplifter in Carrefour and a security guard in a small port town — people from entirely different places and lives who nonetheless share the same fundamental human condition. She adopts an observer’s gaze: attentive, unhurried, and without judgment.",
+          "Her artist books A Long Day and Olivia’s Little Stones are held in the permanent collections of the School of the Art Institute of Chicago; her work has also been included in Guanxiang, a group exhibition at the Nanjing University of the Arts. In community practice, she has led woodblock printing workshops at Baidu Bookstore and Lushan Community House, and presented an artist book talk at the Liangxi District Library in Wuxi, bringing printmaking and the art of the book into contemporary community spaces. Her poetry, meanwhile, has appeared in Yangtze River Poetry Journal, Poetry Journal, Star Poetry Monthly, and other publications."
+        ]
+      },
+      "links": []
+    },
+    {
+      "slug": "changming-lin",
+      "name": "Changming Lin",
+      "role": "Image-maker",
+      "bio": {
+        "en": [
+          "Changming Lin is an image-maker based in Chengdu. His practice spans photography, performance, publishing, design, and other interdisciplinary practices. He often creates images using historic photographic processes and new media. His long-term interests include urban transformation, gender, cultural heritage, and publications, among other areas. Over the past two years, he has been conducting research and practice in socially engaged art."
+        ],
+        "zh": [
+          "林常名，图像工作者，现居成都。创作涉及摄影、行为、出版与设计等跨学科实践，常以古典摄影工艺及新型媒介进行图像创作。其长期关注城市变迁、性别、文化遗迹及出版物等。近两年围绕社会参与式艺术展开研究与实践。"
+        ]
+      },
       "links": []
     }
   ],
@@ -103,7 +121,42 @@
         { "src": "assets/olivia/05.jpg", "layout": "full", "caption": "" }
       ]
     },
-    { "placeholder": true },
+    {
+      "slug": "boring-life",
+      "title": "I’m the Curator of My Own Fucking Boring Life",
+      "people": ["changming-lin"],
+      "year": "2026",
+      "format": "130 × 210 mm",
+      "pages": "96",
+      "place": "Chengdu",
+      "publisher": "Atelier Archron",
+      "cover": "",
+      "preview": "",
+      "description": {
+        "en": [
+          "This is a boring book.",
+          "Reading it requires no interest, patience, or meaning — only a boring stretch of time. If you don’t have one, please queue in place and wait for it to grow.",
+          "Since life is already boring, why not be a little more boring: watch the escalator carry you up, then down; move back and forth between the waiting hall, the number dispenser, the photocopier, and the subway turnstile, and on the fourth lap forget why you were walking.",
+          "Waste time thoroughly. Time agreed, but it didn’t show up."
+        ],
+        "zh": [
+          "这是一本无聊的书",
+          "读它不需要兴趣、耐心或意义，只需要一段无聊的时间。若没有，请在原地排队，等它长出来。",
+          "既然生活已经无聊，我们为什么不更无聊一点：看自动扶梯把自己送上去，再送下来；在候车厅、取号机、复印机和地铁闸机之间来回，走到第四圈时忘记为什么要走。",
+          "把时间浪费得彻底一些。时间同意了，但它没来。"
+        ]
+      },
+      "colophon": {
+        "title": "I’m the Curator of My Own Fucking Boring Life",
+        "groups": [
+          ["All text, editing, and design by Changming Lin"],
+          ["© 2026 Changming Lin. All rights reserved."],
+          ["Published by Atelier Archron as an Archron Project", "First edition, 2026"],
+          ["96 pages · 130 × 210 mm · English", "Printed in Chengdu, China"]
+        ]
+      },
+      "images": []
+    },
     { "placeholder": true },
     { "placeholder": true },
     { "placeholder": true },
