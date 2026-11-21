@@ -375,6 +375,13 @@ a {
   background: transparent;
 }
 
+/* 已出版但封面尚未上传的书：占位仍保留同一版面节奏 */
+.tile__frame--pending {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .tile__empty-label {
   font-family: var(--font-display);
   font-size: var(--text-micro);
@@ -818,6 +825,21 @@ a {
   text-align: right;
 }
 
+/* 人物页只有一行角色，紧跟姓名下方、同栏左对齐 */
+.page-head--stack {
+  display: block;
+}
+
+.page-head--stack .page-head__sub {
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-credit);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: var(--track-read);
+  text-align: left;
+}
+
 .back-link {
   margin: 0 0 18px;
   font-size: var(--text-meta);
@@ -1056,14 +1078,10 @@ a {
   padding-top: clamp(20px, 3vw, 28px);
 }
 
-.about__label {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-micro);
-  font-weight: 600;
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
-  color: var(--muted);
+/* 左列不再放小标签，正文仍占第二栏，保持全站内容列起点 */
+.about__body {
+  grid-column: 2;
+  min-width: 0;
 }
 
 .about__block + .about__block {
@@ -1111,22 +1129,53 @@ a {
   letter-spacing: 0.01em;
 }
 
-.about__contact {
-  margin: 32px 0 0;
-  padding-top: 14px;
-  border-top: 1px solid var(--line-soft);
-  font-size: var(--text-ui);
-  line-height: 1.45;
+/* 关注信息沿用详情页元数据表的档案行 */
+.about__links {
+  display: grid;
+  grid-template-columns: var(--col-label) minmax(0, 1fr);
+  column-gap: var(--gap-col);
+  margin: 44px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.about__links:empty {
+  display: none;
+}
+
+.about__links dt {
+  margin: 0;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-family: var(--font-display);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.about__links dd {
+  margin: 0;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: var(--text-body);
+  line-height: 1.5;
   letter-spacing: var(--track-read);
 }
 
-.about__contact a {
+.about__links dt:last-of-type,
+.about__links dd:last-of-type {
+  border-bottom: 0;
+}
+
+.about__links a {
   text-decoration: none;
   border-bottom: 1px solid var(--line);
   padding-bottom: 1px;
 }
 
-.about__contact a:hover {
+.about__links a:hover {
   color: var(--accent);
   border-color: currentColor;
 }
@@ -1279,6 +1328,10 @@ a {
   .about-grid {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .about__body {
+    grid-column: 1;
   }
 }
 
