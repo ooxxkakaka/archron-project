@@ -289,11 +289,9 @@
     }
 
     const work = works[index];
-    const number = allWorks(data).findIndex((item) => item.slug === work.slug) + 1;
     const images = Array.isArray(work.images) ? work.images : [];
 
     document.title = `${work.title} — ${siteName(data)}`;
-    document.getElementById('work-no').textContent = pad(number);
     document.getElementById('work-title').textContent = work.title;
 
     const peopleMount = document.getElementById('work-people');
@@ -353,55 +351,7 @@
       return;
     }
 
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const lightboxCap = document.getElementById('lightbox-cap');
-    const lightboxCount = document.getElementById('lightbox-count');
-    const prevButton = lightbox.querySelector('[data-lightbox-prev]');
-    const nextButton = lightbox.querySelector('[data-lightbox-next]');
-    let current = 0;
-
-    function updateLightbox() {
-      const item = images[current];
-      lightboxImg.src = item.src;
-      lightboxImg.alt = item.caption || `Plate ${current + 1}`;
-      lightboxCap.textContent = item.caption || '';
-      lightboxCount.textContent = `${pad(current + 1)} / ${pad(images.length)}`;
-      prevButton.disabled = current === 0;
-      nextButton.disabled = current === images.length - 1;
-    }
-
-    function step(delta) {
-      const next = current + delta;
-      if (next < 0 || next >= images.length) return;
-      current = next;
-      updateLightbox();
-    }
-
-    function openLightbox(position) {
-      current = position;
-      updateLightbox();
-      if (!lightbox.open) lightbox.showModal();
-    }
-
-    prevButton.addEventListener('click', () => step(-1));
-    nextButton.addEventListener('click', () => step(1));
-    lightbox.querySelector('[data-lightbox-close]').addEventListener('click', () => lightbox.close());
-    lightbox.addEventListener('click', (event) => {
-      if (event.target === lightbox) lightbox.close();
-    });
-    lightbox.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        step(-1);
-      }
-      if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        step(1);
-      }
-    });
-
-    renderPlates(images, document.getElementById('work-plates'), openLightbox);
+    renderPlates(images, document.getElementById('work-plates'), setupLightbox(images));
   }
 
   function renderWorkIntro(work) {
@@ -453,7 +403,63 @@
     if (body.childElementCount) section.hidden = false;
   }
 
-  function renderPlates(images, mount, onOpen) {
+  /* 详情页与活动页共用同一组 #lightbox 元素；label 只影响没有图注时的读屏文本 */
+  function setupLightbox(images, label) {
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox) return null;
+
+    const name = label || 'Plate';
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCap = document.getElementById('lightbox-cap');
+    const lightboxCount = document.getElementById('lightbox-count');
+    const prevButton = lightbox.querySelector('[data-lightbox-prev]');
+    const nextButton = lightbox.querySelector('[data-lightbox-next]');
+    let current = 0;
+
+    function update() {
+      const item = images[current];
+      lightboxImg.src = item.src;
+      lightboxImg.alt = item.caption || `${name} ${current + 1}`;
+      lightboxCap.textContent = item.caption || '';
+      lightboxCount.textContent = `${pad(current + 1)} / ${pad(images.length)}`;
+      prevButton.disabled = current === 0;
+      nextButton.disabled = current === images.length - 1;
+    }
+
+    function step(delta) {
+      const next = current + delta;
+      if (next < 0 || next >= images.length) return;
+      current = next;
+      update();
+    }
+
+    function open(position) {
+      current = position;
+      update();
+      if (!lightbox.open) lightbox.showModal();
+    }
+
+    prevButton.addEventListener('click', () => step(-1));
+    nextButton.addEventListener('click', () => step(1));
+    lightbox.querySelector('[data-lightbox-close]').addEventListener('click', () => lightbox.close());
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) lightbox.close();
+    });
+    lightbox.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        step(-1);
+      }
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        step(1);
+      }
+    });
+
+    return open;
+  }
+
+  function renderPlates(images, mount, onOpen, label) {
     if (!mount) return;
 
     const groups = [];
@@ -475,27 +481,28 @@
       if (group.length === 2) {
         const pair = document.createElement('div');
         pair.className = 'plates__pair';
-        group.forEach((entry) => pair.appendChild(createPlate(entry.image, entry.index, onOpen)));
+        group.forEach((entry) => pair.appendChild(createPlate(entry.image, entry.index, onOpen, label)));
         mount.appendChild(pair);
       } else {
-        mount.appendChild(createPlate(group[0].image, group[0].index, onOpen));
+        mount.appendChild(createPlate(group[0].image, group[0].index, onOpen, label));
       }
     });
   }
 
-  function createPlate(image, index, onOpen) {
+  function createPlate(image, index, onOpen, label) {
+    const name = label || 'Plate';
     const figure = document.createElement('figure');
     figure.className = 'plate';
 
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'plate__btn';
-    button.setAttribute('aria-label', `View plate ${index + 1}`);
+    button.setAttribute('aria-label', `View ${name.toLowerCase()} ${index + 1}`);
 
     const img = document.createElement('img');
     img.className = 'plate__img';
     img.src = image.src;
-    img.alt = image.caption || `Plate ${index + 1}`;
+    img.alt = image.caption || `${name} ${index + 1}`;
     img.loading = 'lazy';
     img.decoding = 'async';
 
@@ -558,16 +565,6 @@
       });
     }
 
-    const workCount = new Map();
-    allWorks(data)
-      .filter((work) => work && !work.placeholder)
-      .forEach((work) => {
-        if (!Array.isArray(work.people)) return;
-        work.people.forEach((slug) => {
-          workCount.set(slug, (workCount.get(slug) || 0) + 1);
-        });
-      });
-
     const table = document.createElement('table');
     table.className = 'people-table';
 
@@ -579,10 +576,7 @@
     const colgroup = document.createElement('colgroup');
     [
       ['people-table__letter', '30px'],
-      ['people-table__name', '126px'],
-      ['people-table__role', '134px'],
-      ['people-table__based', '96px'],
-      ['people-table__count', '']
+      ['people-table__name', '']
     ].forEach(([className, width]) => {
       const col = document.createElement('col');
       col.className = className;
@@ -597,12 +591,10 @@
     letterHead.scope = 'col';
     letterHead.className = 'people-table__letter';
     headRow.appendChild(letterHead);
-    ['Name', 'Role', 'Based in', 'Works'].forEach((label) => {
-      const th = document.createElement('th');
-      th.scope = 'col';
-      th.textContent = label;
-      headRow.appendChild(th);
-    });
+    const nameHead = document.createElement('th');
+    nameHead.scope = 'col';
+    nameHead.textContent = 'Name';
+    headRow.appendChild(nameHead);
     thead.appendChild(headRow);
     table.appendChild(thead);
 
@@ -611,7 +603,6 @@
       body.id = `letter-${letter === '#' ? 'other' : letter}`;
 
       groups.get(letter).forEach((person, row) => {
-        const total = workCount.get(person.slug) || 0;
         const tr = document.createElement('tr');
 
         const letterCell = document.createElement('th');
@@ -628,21 +619,6 @@
         link.textContent = person.name;
         nameCell.appendChild(link);
         tr.appendChild(nameCell);
-
-        [['people-table__role', person.role], ['people-table__based', person.based]].forEach(
-          ([className, value]) => {
-            const td = document.createElement('td');
-            td.className = className;
-            td.textContent = value || '';
-            tr.appendChild(td);
-          }
-        );
-
-        const countCell = document.createElement('td');
-        countCell.className = 'people-table__count';
-        countCell.dataset.word = total === 1 ? 'publication' : 'publications';
-        countCell.textContent = total ? String(total) : '—';
-        tr.appendChild(countCell);
 
         body.appendChild(tr);
       });
@@ -847,20 +823,13 @@
     return `${day(start)} ${month} ${start.getFullYear()} – ${day(end)} ${MONTHS[end.getMonth()]} ${end.getFullYear()}`;
   }
 
-  function initEvents(data) {
-    const mount = document.getElementById('events-list');
-    if (!mount) return;
-
-    const events = allEvents(data).filter((event) => event && event.title);
-    if (!events.length) {
-      showNotice('No events have been announced yet.');
-      return;
-    }
-
+  /* 列表与详情页同一套排序：未结束的在前，按开始日期升序；已结束的反向 */
+  function eventEntries(data) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const entries = events
+    return allEvents(data)
+      .filter((event) => event && event.title)
       .map((event) => {
         const start = parseDate(event.start);
         const end = parseDate(event.end) || start;
@@ -871,6 +840,17 @@
         if (!a.start || !b.start) return a.start ? -1 : b.start ? 1 : 0;
         return a.upcoming ? a.start - b.start : b.start - a.start;
       });
+  }
+
+  function initEvents(data) {
+    const mount = document.getElementById('events-list');
+    if (!mount) return;
+
+    const entries = eventEntries(data);
+    if (!entries.length) {
+      showNotice('No events have been announced yet.');
+      return;
+    }
 
     entries.forEach(({ event, upcoming }) => {
       const item = document.createElement('li');
@@ -888,10 +868,12 @@
       title.className = 'event__title';
       title.lang = 'en';
       const titleText = localizedText(event.title, 'en');
-      if (event.link) {
+      /* 有 slug 就进站内详情页；没有才用 link 指向外部官网 */
+      const href = event.slug ? `event.html?id=${encodeURIComponent(event.slug)}` : event.link;
+      if (href) {
         const link = document.createElement('a');
-        link.href = event.link;
-        if (/^https?:/i.test(event.link)) {
+        link.href = href;
+        if (/^https?:/i.test(href)) {
           link.target = '_blank';
           link.rel = 'noopener';
         }
@@ -920,17 +902,16 @@
         body.appendChild(line);
       }
 
-      [
-        ['en', localizedText(event.note, 'en')],
-        ['zh-Hans', localizedText(event.note, 'zh-Hans')]
-      ].forEach(([lang, text]) => {
-        if (!text) return;
+      /* 活动说明只出英文：中英文混排在同一列里字面差太大。
+         中文长文档式仍留在 CSS 里（.event__note:lang(zh-Hans)），需要时把上面这段换回来 */
+      const noteEn = localizedText(event.note, 'en');
+      if (noteEn) {
         const note = document.createElement('p');
         note.className = 'event__note';
-        note.lang = lang;
-        note.textContent = text;
+        note.lang = 'en';
+        note.textContent = noteEn;
         body.appendChild(note);
-      });
+      }
 
       const status = document.createElement('span');
       status.className = 'event__status';
@@ -939,6 +920,81 @@
       item.append(date, body, status);
       mount.appendChild(item);
     });
+  }
+
+  /* ---------- event detail ---------- */
+
+  function initEventPage(data) {
+    const root = document.querySelector('.event-page');
+    if (!root) return;
+
+    const entries = eventEntries(data);
+    const slug = new URLSearchParams(location.search).get('id');
+    const index = entries.findIndex((entry) => entry.event.slug === slug);
+
+    if (index === -1) {
+      document.getElementById('event-title').textContent = 'Not found';
+      showNotice('This event does not exist.', { href: 'events.html', text: 'Back to events' });
+      return;
+    }
+
+    const { event, upcoming } = entries[index];
+    const title = localizedText(event.title, 'en');
+
+    document.title = `${title} — ${siteName(data)}`;
+    document.getElementById('event-title').textContent = title;
+
+    const meta = document.getElementById('event-meta');
+    const place = [localizedText(event.city, 'en'), event.venue].filter(Boolean).join(' · ');
+    [
+      ['Dates', formatEventDate(event.start, event.end)],
+      ['Place', place],
+      ['Status', upcoming ? 'Upcoming' : 'Past']
+    ]
+      .filter(([, value]) => value)
+      .forEach(([label, value]) => {
+        const dt = document.createElement('dt');
+        dt.textContent = label;
+        const dd = document.createElement('dd');
+        dd.textContent = value;
+        meta.append(dt, dd);
+      });
+
+    const note = localizedText(event.note, 'en');
+    if (note) {
+      const p = document.createElement('p');
+      p.lang = 'en';
+      p.textContent = note;
+      document.getElementById('event-intro-body').appendChild(p);
+      document.getElementById('event-intro').hidden = false;
+    }
+
+    const images = (Array.isArray(event.images) ? event.images : []).filter((image) => image && image.src);
+    if (!images.length) {
+      showNotice('Photographs from this event have not been added yet.');
+      return;
+    }
+
+    const mount = document.getElementById('event-plates');
+    document.getElementById('event-photos-label').hidden = false;
+    mount.hidden = false;
+    renderPlates(images, mount, setupLightbox(images, 'Photo'), 'Photo');
+
+    const prev = entries[index - 1];
+    const next = entries[index + 1];
+    const prevLink = document.getElementById('event-prev');
+    const nextLink = document.getElementById('event-next');
+    if (prev && prev.event.slug) {
+      prevLink.hidden = false;
+      prevLink.href = `event.html?id=${encodeURIComponent(prev.event.slug)}`;
+      prevLink.textContent = `← ${localizedText(prev.event.title, 'en')}`;
+    }
+    if (next && next.event.slug) {
+      nextLink.hidden = false;
+      nextLink.href = `event.html?id=${encodeURIComponent(next.event.slug)}`;
+      nextLink.textContent = `${localizedText(next.event.title, 'en')} →`;
+    }
+    if (prevLink.hidden && nextLink.hidden) document.getElementById('event-nav').hidden = true;
   }
 
   (async () => {
@@ -951,6 +1007,7 @@
       initPerson(data);
       initAbout(data);
       initEvents(data);
+      initEventPage(data);
     } catch (error) {
       showNotice(
         'Site data could not be loaded. Preview through a local server — python3 -m http.server 8000 — or open the published GitHub Pages URL.'
