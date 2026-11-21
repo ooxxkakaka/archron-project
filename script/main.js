@@ -19,6 +19,24 @@
     return value[key] || value[lang] || value.en || Object.values(value).find(Boolean) || '';
   }
 
+  function paragraphs(value) {
+    if (!value) return [];
+    return (Array.isArray(value) ? value : [value])
+      .filter((text) => typeof text === 'string' && text.trim())
+      .map((text) => text.trim());
+  }
+
+  /* 长文可为 { en, zh } 分段，也可写成纯字符串数组（按英文处理） */
+  function textParts(value) {
+    if (Array.isArray(value)) return [['en', paragraphs(value)]];
+    if (typeof value === 'string') return [['en', paragraphs(value)]];
+    if (!value) return [];
+    return [
+      ['en', paragraphs(value.en)],
+      ['zh-Hans', paragraphs(value.zh)]
+    ].filter(([, list]) => list.length);
+  }
+
   document.querySelectorAll('[data-site="year"]').forEach((el) => {
     el.textContent = new Date().getFullYear();
   });
@@ -134,28 +152,37 @@
       } else if (work.coverWidth > 0 && work.coverHeight > 0) {
         frame.style.setProperty('--ratio', `${work.coverWidth} / ${work.coverHeight}`);
       }
-      const img = document.createElement('img');
-      img.className = 'tile__img';
-      img.src = work.cover;
-      img.alt = `Cover of ${work.title}`;
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      if (work.coverFit === 'cover') img.style.objectFit = 'cover';
-      if (work.coverWidth > 0 && work.coverHeight > 0) {
-        img.width = work.coverWidth;
-        img.height = work.coverHeight;
+      if (work.cover) {
+        const img = document.createElement('img');
+        img.className = 'tile__img';
+        img.src = work.cover;
+        img.alt = `Cover of ${work.title}`;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        if (work.coverFit === 'cover') img.style.objectFit = 'cover';
+        if (work.coverWidth > 0 && work.coverHeight > 0) {
+          img.width = work.coverWidth;
+          img.height = work.coverHeight;
+        }
+        if (!manualRatio) {
+          img.addEventListener(
+            'load',
+            () => {
+              if (!img.naturalWidth || !img.naturalHeight) return;
+              frame.style.setProperty('--ratio', `${img.naturalWidth} / ${img.naturalHeight}`);
+            },
+            { once: true }
+          );
+        }
+        frame.appendChild(img);
+      } else {
+        /* 封面未上传时保留版面占位，空 src 会让浏览器回请求页面本身 */
+        frame.classList.add('tile__frame--pending');
+        const pending = document.createElement('span');
+        pending.className = 'tile__empty-label';
+        pending.textContent = 'Cover to follow';
+        frame.appendChild(pending);
       }
-      if (!manualRatio) {
-        img.addEventListener(
-          'load',
-          () => {
-            if (!img.naturalWidth || !img.naturalHeight) return;
-            frame.style.setProperty('--ratio', `${img.naturalWidth} / ${img.naturalHeight}`);
-          },
-          { once: true }
-        );
-      }
-      frame.appendChild(img);
 
       const meta = document.createElement('div');
       meta.className = 'tile__meta';
@@ -360,15 +387,13 @@
     if (!section || !body) return;
 
     const description = work.description || {};
-    [
-      ['en', description.en],
-      ['zh-Hans', description.zh]
-    ].forEach(([lang, text]) => {
-      if (!text) return;
-      const p = document.createElement('p');
-      p.lang = lang;
-      p.textContent = text;
-      body.appendChild(p);
+    textParts(description).forEach(([lang, list]) => {
+      list.forEach((text) => {
+        const p = document.createElement('p');
+        p.lang = lang;
+        p.textContent = text;
+        body.appendChild(p);
+      });
     });
 
     if (body.childElementCount) section.hidden = false;
@@ -651,19 +676,20 @@
 
     document.title = `${person.name} — ${siteName(data)}`;
     name.textContent = person.name;
-    const personMeta = [person.role, person.based, person.nationality].filter(Boolean).join(' · ');
-    if (personMeta) role.textContent = personMeta;
+    /* 只显角色，与姓名同栏左对齐；所在城市写在简介正文里，不再拼进这一行 */
+    if (person.role) role.textContent = person.role;
     else role.hidden = true;
 
     const bioMount = document.getElementById('person-bio');
-    const bio = Array.isArray(person.bio) ? person.bio.filter(Boolean) : [];
-    if (bio.length) {
-      bio.forEach((text) => {
+    textParts(person.bio).forEach(([lang, list]) => {
+      list.forEach((text) => {
         const p = document.createElement('p');
+        p.lang = lang;
         p.textContent = text;
         bioMount.appendChild(p);
       });
-    } else {
+    });
+    if (!bioMount.childElementCount) {
       const p = document.createElement('p');
       p.className = 'is-muted';
       p.textContent = 'Biography forthcoming.';
@@ -731,7 +757,7 @@
 
     const about = (data.site && data.site.about) || {};
     const mount = document.getElementById('about-body');
-    const contact = document.getElementById('about-contact');
+    const linksMount = document.getElementById('about-links');
     const languages =
       Array.isArray(about.languages) && about.languages.length ? about.languages : ['en'];
 
@@ -739,8 +765,8 @@
       const key = lang === 'zh-Hans' ? 'zh' : lang;
       const part = about[key];
       if (!part) return;
-      const paragraphs = Array.isArray(part.paragraphs) ? part.paragraphs.filter(Boolean) : [];
-      if (!part.lead && !paragraphs.length) return;
+      const list = Array.isArray(part.paragraphs) ? part.paragraphs.filter(Boolean) : [];
+      if (!part.lead && !list.length) return;
 
       const block = document.createElement('section');
       block.className = 'about__block';
@@ -753,10 +779,10 @@
         block.appendChild(lead);
       }
 
-      if (paragraphs.length) {
+      if (list.length) {
         const body = document.createElement('div');
         body.className = 'about__text';
-        paragraphs.forEach((text) => {
+        list.forEach((text) => {
           const p = document.createElement('p');
           p.textContent = text;
           body.appendChild(p);
@@ -767,17 +793,26 @@
       mount.appendChild(block);
     });
 
-    const email = data.site && data.site.email;
-    if (email) {
-      contact.hidden = false;
-      contact.append('For enquiries: ');
-      const link = document.createElement('a');
-      link.href = `mailto:${email}`;
-      link.textContent = email;
-      contact.appendChild(link);
-    }
+    const siteLinks = Array.isArray(data.site && data.site.links) ? data.site.links : [];
+    siteLinks
+      .filter((entry) => entry && entry.label && entry.href)
+      .forEach((entry) => {
+        const dt = document.createElement('dt');
+        dt.textContent = entry.label;
+        const dd = document.createElement('dd');
+        const a = document.createElement('a');
+        a.href = entry.href;
+        a.textContent = entry.text || entry.href;
+        if (!/^mailto:/i.test(entry.href)) {
+          a.target = '_blank';
+          a.rel = 'noreferrer noopener';
+        }
+        dd.appendChild(a);
+        linksMount.append(dt, dd);
+      });
+    if (linksMount.childElementCount) linksMount.hidden = false;
 
-    if (!mount.childElementCount && !email) {
+    if (!mount.childElementCount && !linksMount.childElementCount) {
       showNotice('About text has not been added yet.');
     }
   }
