@@ -1,0 +1,106 @@
+{
+  "site": {
+    "name": "ARCHRON PROJECT",
+    "tagline": "Selected publications and printed matter.",
+    "copyright": "Atelier Archron",
+    "email": "",
+    "about": {
+      "languages": ["en"],
+      "en": {
+        "lead": "ARCHRON PROJECT is a project of Atelier Archron, a studio for image production and visual culture.",
+        "paragraphs": [
+          "The project develops publications with artists, writers and institutions. Format, paper, sequence and distribution are agreed title by title, with the people involved.",
+          "This index gathers a selection of those publications. Each title opens onto a sequence of plates; the People index lists the authors, artists and collaborators behind them."
+        ]
+      },
+      "zh": {
+        "lead": "ARCHRON PROJECT 是 Atelier Archron 旗下的出版项目。Atelier Archron 是一家从事图像制作与视觉文化的工作室。",
+        "paragraphs": [
+          "我们与艺术家、写作者和机构共同出版。开本、纸张、编排与发行方式，由参与者针对每一本书逐一商定。",
+          "这里收录其中的一部分出版物。每本书展开为一组版面；People 索引列出参与其中的作者、艺术家与合作者。"
+        ]
+      }
+    }
+  },
+  "people": [
+    {
+      "slug": "jialing-sun",
+      "name": "Jialing Sun",
+      "role": "Poet, Artist",
+      "based": "Chengdu",
+      "nationality": "",
+      "bio": [],
+      "links": []
+    }
+  ],
+  "events": [
+    {
+      "title": { "en": "Bonjour Art Book Fair", "zh": "不熟艺术书展" },
+      "city": { "en": "Shanghai", "zh": "上海" },
+      "venue": "",
+      "start": "2026-12-04",
+      "end": "2026-12-06",
+      "note": {
+        "en": "Atelier Archron will present recent publications at the fair.",
+        "zh": "Atelier Archron 将携近年出版物参加。"
+      },
+      "link": ""
+    }
+  ],
+  "works": [
+    {
+      "slug": "olivia",
+      "title": "Olivia’s Little Stones",
+      "people": ["jialing-sun"],
+      "year": "2026",
+      "format": "A5 (148 × 210 mm)",
+      "pages": "",
+      "place": "Chengdu",
+      "publisher": "Atelier Archron",
+      "cover": "assets/olivia/cover.jpg",
+      "coverWidth": 1200,
+      "coverHeight": 1702,
+      "preview": "assets/olivia/02.jpg",
+      "description": {
+        "en": "On a mountaintop live Olivia and her family. One day, an evil warlock descends on their little home and stirs up a storm. Olivia, who has never ventured far, must walk alone into the dark forest — a place of magic and sorcery, where forest spirits dwell. Can she find a way to repel the warlock? Sit back, relax, and fall into an adventure that begins by accident, following this wonderfully expressive little girl’s steps.",
+        "zh": "山顶上住着奥利薇一家。有一天，邪恶巫师降临这个小家，掀起风浪。从未远行的奥利薇只能独自走进黑森林——那里既有魔法与巫术，也有森林精灵栖息。她能从中找到驱散巫师的办法吗？你可以放轻松，跟着这个神情诙谐的小女孩，掉进一次意外开启的冒险旅程。"
+      },
+      "colophon": {
+        "title": "Olivia’s Little Stones",
+        "groups": [
+          [
+            "Written and illustrated by Jialing Sun",
+            "Edited and designed by Changming Lin"
+          ],
+          [
+            "Text and illustrations © 2018 Jialing Sun",
+            "This edition © 2026 Jialing Sun",
+            "All rights reserved."
+          ],
+          [
+            "Published by Atelier Archron, Chengdu, 2026",
+            "Published as part of Archron Project",
+            "This edition published 2026",
+            "First published in 2018 by Jialing Sun"
+          ],
+          [
+            "Artist’s book · A5 (148 × 210 mm)",
+            "Printed in Chengdu, 2026"
+          ]
+        ]
+      },
+      "images": [
+        { "src": "assets/olivia/01.jpg", "layout": "full", "caption": "" },
+        { "src": "assets/olivia/02.jpg", "layout": "half", "caption": "" },
+        { "src": "assets/olivia/03.jpg", "layout": "half", "caption": "" },
+        { "src": "assets/olivia/04.jpg", "layout": "full", "caption": "" },
+        { "src": "assets/olivia/05.jpg", "layout": "full", "caption": "" }
+      ]
+    },
+    { "placeholder": true },
+    { "placeholder": true },
+    { "placeholder": true },
+    { "placeholder": true },
+    { "placeholder": true }
+  ]
+}

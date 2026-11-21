@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Person — ARCHRON PROJECT</title>
+  <meta name="description" content="Authors, artists and collaborators.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style/main.css">
+</head>
+<body class="page-person">
+
+  <header class="site-head">
+    <a class="site-head__name" href="index.html" data-site="name">ARCHRON PROJECT</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Publications</a>
+      <a href="people.html" aria-current="page">People</a>
+      <a href="events.html">Events</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main class="person">
+    <p class="back-link"><a href="people.html">← All people</a></p>
+
+    <header class="page-head">
+      <h1 id="person-name"></h1>
+      <p id="person-role"></p>
+    </header>
+
+    <div class="person__body">
+      <div class="person__bio" id="person-bio"></div>
+      <ul class="person__links" id="person-links" hidden></ul>
+    </div>
+
+    <section class="person__works" id="person-works" aria-labelledby="person-works-title">
+      <h2 id="person-works-title">Publications</h2>
+      <ol class="work-list" id="work-list"></ol>
+    </section>
+
+    <p class="notice" id="notice" hidden></p>
+  </main>
+
+  <footer class="site-foot">
+    <span>© <span data-site="year">2026</span> <span data-site="copyright">Atelier Archron</span></span>
+    <a data-site="email" href="mailto:" hidden></a>
+  </footer>
+
+  <script src="script/main.js" defer></script>
+</body>
+</html>

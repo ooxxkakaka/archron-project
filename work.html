@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Publication — ARCHRON PROJECT</title>
+  <meta name="description" content="Selected publications and printed matter.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style/main.css">
+</head>
+<body class="page-work">
+
+  <header class="site-head">
+    <a class="site-head__name" href="index.html" data-site="name">ARCHRON PROJECT</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html" aria-current="page">Publications</a>
+      <a href="people.html">People</a>
+      <a href="events.html">Events</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main class="work">
+    <header class="work__head">
+      <p class="work__no" id="work-no"></p>
+      <h1 class="work__title" id="work-title"></h1>
+      <p class="work__people" id="work-people"></p>
+      <dl class="work__meta" id="work-meta"></dl>
+    </header>
+
+    <section class="work__intro" id="work-intro" aria-labelledby="work-intro-title" hidden>
+      <p class="work__label" id="work-intro-title">About</p>
+      <div class="work__intro-body" id="work-intro-body"></div>
+    </section>
+
+    <div class="work__plates" id="work-plates"></div>
+
+    <section class="work__colophon" id="work-colophon" aria-labelledby="work-colophon-title" hidden>
+      <p class="work__label" id="work-colophon-title">Colophon</p>
+      <div class="work__colophon-body" id="work-colophon-body"></div>
+    </section>
+
+    <nav class="work__nav" aria-label="Publications">
+      <a class="work__nav-link" id="work-prev" hidden></a>
+      <a class="work__nav-link work__nav-link--next" id="work-next" hidden></a>
+    </nav>
+
+    <p class="notice" id="notice" hidden></p>
+  </main>
+
+  <footer class="site-foot">
+    <span>© <span data-site="year">2026</span> <span data-site="copyright">Atelier Archron</span></span>
+    <a data-site="email" href="mailto:" hidden></a>
+  </footer>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Image viewer">
+    <p class="lightbox__count" id="lightbox-count"></p>
+    <button class="lightbox__close" type="button" data-lightbox-close>Close</button>
+    <button class="lightbox__step lightbox__step--prev" type="button" data-lightbox-prev aria-label="Previous image">←</button>
+    <figure class="lightbox__figure">
+      <img class="lightbox__img" id="lightbox-img" alt="">
+      <figcaption class="lightbox__cap" id="lightbox-cap"></figcaption>
+    </figure>
+    <button class="lightbox__step lightbox__step--next" type="button" data-lightbox-next aria-label="Next image">→</button>
+  </dialog>
+
+  <script src="script/main.js" defer></script>
+</body>
+</html>
