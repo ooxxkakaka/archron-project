@@ -59,6 +59,7 @@
       "slug": "bonjour-art-book-fair",
       "title": { "en": "Bonjour Art Book Fair", "zh": "不熟艺术书展" },
       "city": { "en": "Shanghai", "zh": "上海" },
+      "country": { "en": "China", "zh": "中国" },
       "venue": "World Expo Exhibition Hall",
       "start": "2026-12-04",
       "end": "2026-12-06",
@@ -124,11 +125,10 @@
         ]
       },
       "images": [
+        { "src": "assets/olivia/cover.jpg", "layout": "frame", "caption": "" },
         { "src": "assets/olivia/01.jpg", "layout": "full", "caption": "" },
         { "src": "assets/olivia/02.jpg", "layout": "half", "caption": "" },
-        { "src": "assets/olivia/03.jpg", "layout": "half", "caption": "" },
-        { "src": "assets/olivia/04.jpg", "layout": "full", "caption": "" },
-        { "src": "assets/olivia/05.jpg", "layout": "full", "caption": "" }
+        { "src": "assets/olivia/03.jpg", "layout": "half", "caption": "" }
       ]
     },
     {
@@ -140,8 +140,8 @@
       "pages": "96",
       "place": "Chengdu",
       "publisher": "Atelier Archron",
-      "cover": "",
-      "preview": "",
+      "cover": "assets/boring-life/cover.jpg",
+      "preview": "assets/boring-life/02.jpg",
       "description": {
         "en": [
           "This is a boring book.",
@@ -166,11 +166,11 @@
         ]
       },
       "images": [
-        { "src": "assets/boring-life/01.jpg", "pending": true, "layout": "full", "caption": "" },
-        { "src": "assets/boring-life/02.jpg", "pending": true, "layout": "half", "caption": "" },
-        { "src": "assets/boring-life/03.jpg", "pending": true, "layout": "half", "caption": "" },
-        { "src": "assets/boring-life/04.jpg", "pending": true, "layout": "full", "caption": "" },
-        { "src": "assets/boring-life/05.jpg", "pending": true, "layout": "full", "caption": "" }
+        { "src": "assets/boring-life/cover.jpg", "layout": "frame", "ratio": "130 / 210", "caption": "" },
+        { "src": "assets/boring-life/01.jpg", "layout": "full", "rule": true, "caption": "" },
+        { "src": "assets/boring-life/02.jpg", "layout": "full", "rule": true, "caption": "" },
+        { "src": "assets/boring-life/03.jpg", "layout": "full", "rule": true, "caption": "" },
+        { "src": "assets/boring-life/04.jpg", "layout": "full", "rule": true, "caption": "" }
       ]
     }
   ]
