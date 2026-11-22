@@ -10,7 +10,7 @@
   const allPeople = (data) => (Array.isArray(data.people) ? data.people : []);
   const allEvents = (data) => (Array.isArray(data.events) ? data.events : []);
   const findPerson = (data, slug) => allPeople(data).find((person) => person.slug === slug);
-  const siteName = (data) => (data.site && data.site.name) || 'ARCHRON PROJECT';
+  const siteName = (data) => (data.site && data.site.name) || 'archron project';
 
   function localizedText(value, lang) {
     if (!value) return '';
@@ -462,7 +462,7 @@
     function update() {
       const item = images[current];
       lightboxImg.src = item.src;
-      lightboxImg.alt = item.caption || `${name} ${current + 1}`;
+      lightboxImg.alt = item.caption || `${item.label || name} ${current + 1}`;
       lightboxCap.textContent = item.caption || '';
       lightboxCount.textContent = `${pad(current + 1)} / ${pad(images.length)}`;
       prevButton.disabled = current === 0;
@@ -502,47 +502,78 @@
     return open;
   }
 
-  /* 未上传的图位只占版不请求文件，所以灯箱只收录有真实 src 的格子 */
-  function renderPlates(images, mount, label) {
+  /* 图组标题给人看复数（Posters），读屏文本给灯箱用单数（Poster 1） */
+  const singularLabel = (label) => (label || 'Plate').replace(/s$/, '');
+
+  /* 灯箱按整页建一次，活动页的多个图组共用一套序号；未上传的图位不进灯箱。
+     positions 记下每张真实图片在灯箱里的位置，labels 让读屏文本跟着所属图组走。 */
+  function plateController(groups) {
+    const openable = [];
+    const positions = new Map();
+    groups.forEach((group) => {
+      const name = singularLabel(group.label);
+      (Array.isArray(group.images) ? group.images : []).forEach((image) => {
+        if (!image.src || image.pending) return;
+        positions.set(image, openable.length);
+        openable.push({ ...image, label: name });
+      });
+    });
+    return { positions, open: openable.length ? setupLightbox(openable, 'Plate') : null };
+  }
+
+  /* 图版三档：frame 是 420px 方框（海报、封面这类竖幅单图），half 两栏并排，
+     full 满幅（只给横向大图和跨页）。连续同档的图归到同一个容器里，
+     末尾落单的 half 仍然只占半栏。 */
+  function renderPlates(images, mount, label, shared) {
     if (!mount) return;
 
-    const name = label || 'Plate';
-    const openable = images.filter((image) => image.src && !image.pending);
-    const positions = new Map();
-    openable.forEach((image, position) => positions.set(image, position));
-    const open = openable.length ? setupLightbox(openable, name) : null;
+    /* 读屏文本用单数：Posters → Poster、Photographs → Photograph */
+    const name = singularLabel(label);
+    const controller = shared || plateController([{ images, label: name }]);
 
-    const groups = [];
-    for (let i = 0; i < images.length; i += 1) {
-      const current = images[i];
-      const next = images[i + 1];
-      if (current.layout === 'half' && next && next.layout === 'half') {
-        groups.push([
-          { image: current, index: i },
-          { image: next, index: i + 1 }
-        ]);
-        i += 1;
-      } else {
-        groups.push([{ image: current, index: i }]);
+    const plate = (image) => createPlate(image, controller.positions, controller.open, name);
+    const flush = (layout, group) => {
+      if (!group.length) return;
+      if (layout === 'frame') {
+        const row = document.createElement('div');
+        row.className = 'plates__frames';
+        group.forEach((image) => row.appendChild(plate(image)));
+        mount.appendChild(row);
+        return;
       }
-    }
+      if (layout === 'half') {
+        for (let i = 0; i < group.length; i += 2) {
+          const pair = document.createElement('div');
+          pair.className = 'plates__pair';
+          group.slice(i, i + 2).forEach((image) => pair.appendChild(plate(image)));
+          mount.appendChild(pair);
+        }
+        return;
+      }
+      group.forEach((image) => mount.appendChild(plate(image)));
+    };
 
-    groups.forEach((group) => {
-      if (group.length === 2) {
-        const pair = document.createElement('div');
-        pair.className = 'plates__pair';
-        group.forEach((entry) => pair.appendChild(createPlate(entry.image, positions, open, name)));
-        mount.appendChild(pair);
-      } else {
-        mount.appendChild(createPlate(group[0].image, positions, open, name));
+    let layout = null;
+    let group = [];
+    images.forEach((image) => {
+      const current = image.layout || 'full';
+      if (current !== layout) {
+        flush(layout, group);
+        layout = current;
+        group = [];
       }
+      group.push(image);
     });
+    flush(layout, group);
   }
 
   function createPlate(image, positions, open, label) {
     const name = label || 'Plate';
+    const layout = image.layout || 'full';
+    const framed = layout === 'frame';
     const figure = document.createElement('figure');
     figure.className = 'plate';
+    if (framed) figure.style.setProperty('--ratio', image.ratio || '148 / 210');
 
     if (!image.src || image.pending) {
       figure.classList.add('plate--pending');
@@ -559,6 +590,7 @@
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'plate__btn';
+    if (framed) button.classList.add('img-frame');
     button.setAttribute('aria-label', `View ${name.toLowerCase()} ${positions.get(image) + 1}`);
 
     const img = document.createElement('img');
@@ -906,6 +938,26 @@
       });
   }
 
+  /* 列表与详情页的地点项：城市在前，展位号在后 */
+  const eventPlace = (event) => [localizedText(event.city, 'en'), event.venue].filter(Boolean).join(' · ');
+
+  /* 活动的图片一律按组填：galleries 里每组一个 label 加一组 images。
+     只有一组时也可以直接写 imageLabel + images，渲染时归成一组，两种写法版式相同。 */
+  function eventGalleries(event) {
+    const groups = Array.isArray(event.galleries) && event.galleries.length
+      ? event.galleries
+      : [{ label: event.imageLabel, images: event.images }];
+
+    return groups
+      .map((group) => ({
+        label: localizedText(group && group.label, 'en') || 'Photographs',
+        images: (Array.isArray(group && group.images) ? group.images : [])
+          .filter((image) => image && (image.src || image.pending))
+      }))
+      .filter((group) => group.images.length);
+  }
+
+  /* 活动目录与 People 同一张档案表：日期 / 名称 / 地点三列，行线铺满整栏 */
   function initEvents(data) {
     const mount = document.getElementById('events-list');
     if (!mount) return;
@@ -916,50 +968,72 @@
       return;
     }
 
-    entries.forEach(({ event, upcoming }) => {
-      const item = document.createElement('li');
-      item.className = upcoming ? 'event' : 'event event--past';
+    const table = document.createElement('table');
+    table.className = 'events-table';
 
+    const caption = document.createElement('caption');
+    caption.className = 'sr-only';
+    caption.textContent = 'Events';
+    table.appendChild(caption);
+
+    const colgroup = document.createElement('colgroup');
+    ['events-table__date', '', 'events-table__place'].forEach((className) => {
+      const col = document.createElement('col');
+      if (className) col.className = className;
+      colgroup.appendChild(col);
+    });
+    table.appendChild(colgroup);
+
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    ['Dates', 'Event', 'Place'].forEach((text) => {
+      const th = document.createElement('th');
+      th.scope = 'col';
+      th.textContent = text;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    const body = document.createElement('tbody');
+    entries.forEach(({ event, upcoming }) => {
+      const row = document.createElement('tr');
+      if (!upcoming) row.className = 'event--past';
+
+      const dateCell = document.createElement('td');
+      dateCell.className = 'events-table__date';
       const date = document.createElement('time');
-      date.className = 'event__date';
       if (event.start) date.dateTime = event.start;
       date.textContent = formatEventDate(event.start, event.end);
+      dateCell.appendChild(date);
 
-      const body = document.createElement('div');
-      body.className = 'event__body';
-
-      const title = document.createElement('h2');
-      title.className = 'event__title';
-      title.lang = 'en';
-      const titleText = localizedText(event.title, 'en');
+      const titleCell = document.createElement('td');
+      const link = document.createElement('a');
+      link.className = 'events-table__title';
+      link.lang = 'en';
+      link.textContent = localizedText(event.title, 'en');
       /* 有 slug 就进站内详情页；没有才用 link 指向外部官网 */
       const href = event.slug ? `event.html?id=${encodeURIComponent(event.slug)}` : event.link;
       if (href) {
-        const link = document.createElement('a');
         link.href = href;
         if (/^https?:/i.test(href)) {
           link.target = '_blank';
           link.rel = 'noopener';
         }
-        link.textContent = titleText;
-        title.appendChild(link);
-      } else {
-        title.textContent = titleText;
       }
-      body.appendChild(title);
+      titleCell.appendChild(link);
 
-      const place = [localizedText(event.city, 'en'), event.venue].filter(Boolean).join(' · ');
-      if (place) {
-        const line = document.createElement('p');
-        line.className = 'event__place';
-        line.lang = 'en';
-        line.textContent = place;
-        body.appendChild(line);
-      }
+      const placeCell = document.createElement('td');
+      placeCell.className = 'events-table__place';
+      placeCell.lang = 'en';
+      placeCell.textContent = eventPlace(event);
 
-      item.append(date, body);
-      mount.appendChild(item);
+      row.append(dateCell, titleCell, placeCell);
+      body.appendChild(row);
     });
+
+    table.appendChild(body);
+    mount.appendChild(table);
   }
 
   /* ---------- event detail ---------- */
@@ -985,10 +1059,9 @@
     document.getElementById('event-title').textContent = title;
 
     const meta = document.getElementById('event-meta');
-    const place = [localizedText(event.city, 'en'), event.venue].filter(Boolean).join(' · ');
     [
       ['Dates', formatEventDate(event.start, event.end)],
-      ['Place', place],
+      ['Place', eventPlace(event)],
       ['Status', upcoming ? 'Upcoming' : 'Past']
     ]
       .filter(([, value]) => value)
@@ -1000,30 +1073,58 @@
         meta.append(dt, dd);
       });
 
-    const note = localizedText(event.note, 'en');
-    if (note) {
-      const p = document.createElement('p');
-      p.lang = 'en';
-      p.textContent = note;
-      document.getElementById('event-intro-body').appendChild(p);
-      document.getElementById('event-intro').hidden = false;
+    const lede = document.getElementById('event-lede');
+    const intro = document.getElementById('event-intro');
+    const languages = renderLongText(document.getElementById('event-intro-body'), event.description);
+    if (languages) {
+      /* 两种语言都填时简介铺满整幅左右分栏，右栏的海报缩略图让位给中文 */
+      if (languages > 1) {
+        intro.classList.add('work__intro--bilingual');
+        lede.classList.add('event-lede--full');
+      }
+      intro.hidden = false;
     }
 
-    const images = (Array.isArray(event.images) ? event.images : [])
-      .filter((image) => image && (image.src || image.pending));
-    if (!images.length) {
+    const galleries = eventGalleries(event);
+
+    const keyVisual = languages === 1 && galleries.length
+      ? galleries[0].images.find((image) => image.src && !image.pending)
+      : null;
+    if (keyVisual) {
+      const figure = document.createElement('figure');
+      figure.className = 'event-lede__poster';
+      const frame = document.createElement('div');
+      frame.className = 'img-frame';
+      frame.style.setProperty('--ratio', keyVisual.ratio || '148 / 210');
+      const image = document.createElement('img');
+      image.src = keyVisual.src;
+      image.alt = keyVisual.caption || `${title} — ${galleries[0].label.toLowerCase()}`;
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      frame.appendChild(image);
+      figure.appendChild(frame);
+      lede.appendChild(figure);
+    }
+
+    const mount = document.getElementById('event-galleries');
+    if (galleries.length) {
+      /* 灯箱按整页建一次，各组图片共用同一串序号；读屏文本用单数 */
+      const controller = plateController(galleries.map((group) => ({ ...group, label: singularLabel(group.label) })));
+      galleries.forEach((group) => {
+        const section = document.createElement('section');
+        section.className = 'gallery';
+        const label = document.createElement('p');
+        label.className = 'work__label gallery__label';
+        label.textContent = group.label;
+        const plates = document.createElement('div');
+        plates.className = 'work__plates';
+        renderPlates(group.images, plates, group.label, controller);
+        section.append(label, plates);
+        mount.appendChild(section);
+      });
+    } else {
       showNotice('Images from this event have not been added yet.');
-      return;
     }
-
-    const mount = document.getElementById('event-plates');
-    const label = localizedText(event.imageLabel, 'en') || 'Photographs';
-    const labelMount = document.getElementById('event-photos-label');
-    labelMount.textContent = label;
-    labelMount.hidden = false;
-    mount.hidden = false;
-    /* 读屏文本用单数：Posters → Poster、Photographs → Photograph */
-    renderPlates(images, mount, label.replace(/s$/, ''));
 
     const prev = entries[index - 1];
     const next = entries[index + 1];
