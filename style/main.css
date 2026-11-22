@@ -47,7 +47,8 @@
 /* ============================================================
    配色与背景
    改背景只需要改下面的 --paper。
-   纯白：#ffffff ／ 浅灰：#f2f2f0 ／ 冷灰：#f3f4f5
+   当前：纯白 #ffffff
+   其他备选：暖白 #FBFAF7 ／ 浅灰 #f2f2f0 ／ 冷灰 #f3f4f5
    深色版：--paper:#141412; --ink:#eceae4; --muted:#9b958a;
            --line:#4a3b3b; --tone:#1d1c19; --accent:#ffaaaa;
    ============================================================ */
@@ -1355,25 +1356,25 @@ a {
   color: var(--muted);
 }
 
-/* 五列宽度：年份 84 / 日期 140 / 类型 124 / 名称 294，四列刚好收在阅读栏右沿 x=700；
-   地点列吸收剩余，行线仍铺满整栏，右侧留空不再挂信息 */
-.events-table__year { width: 84px; }
-.events-table__date { width: 140px; }
-.events-table__type { width: 124px; }
-.events-table__event { width: 294px; }
+/* 五列宽度：年份 / 日期 / 类型 / 名称四列按比例铺满前四分之三，地点列接在后面，
+   不再把前四列挤在左半、让最后一大段空着；行线仍铺满整栏 */
+.events-table__year { width: 15.1%; }
+.events-table__date { width: 20.4%; }
+.events-table__type { width: 17.1%; }
+.events-table__event { width: 25.1%; }
 
-/* 年份、日期、类型同属索引信息，用同一档小号大写：
-   字重降到 400，和正文的灰度接近，不跟表头的 600 抢；
-   年份用墨色排成一条纵向可扫的轴，日期与类型退灰 */
+/* 目录行的四格元数据（年份、日期、类型、地点）统一一档：
+   12px Cabin 400、正常大小写、同一个字距与行高；年份用墨色，其余退灰。
+   同一字号同一基线，PLACE 和 BOOK FAIR 这类小字才会落在一条线上。 */
 .events-table td.events-table__year,
 .events-table td.events-table__date,
-.events-table td.events-table__type {
+.events-table td.events-table__type,
+.events-table td.events-table__place {
   font-family: var(--font-display);
-  font-size: var(--text-micro);
+  font-size: var(--text-ui);
   font-weight: 400;
-  line-height: 1.35;
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
+  line-height: 1.4;
+  letter-spacing: var(--track-read);
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1393,18 +1394,12 @@ tr.event--past .events-table__year {
   color: var(--muted);
 }
 
-.events-table td.events-table__place {
-  font-size: var(--text-ui);
-  line-height: 1.45;
-  letter-spacing: var(--track-read);
-  color: var(--muted);
-}
-
-/* 条目档：与索引卡片作品名、People 归档表姓名同一字号同一字重 */
+/* 条目档：字号与索引卡片作品名、People 归档表姓名同档，但目录行不加粗，
+   整行统一用 Cabin 400，名称、地点、日期、类型在同一字重上 */
 .events-table__title {
   font-family: var(--font-display);
   font-size: var(--text-entry);
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.25;
   letter-spacing: var(--track-read);
   color: var(--ink);
@@ -1467,11 +1462,12 @@ tr.event--past .events-table__year {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* 表格还在五列形态时，收窄前三列、名称列给地点让位，行内仍保持一行 */
-  .events-table__year { width: 78px; }
-  .events-table__date { width: 134px; }
-  .events-table__type { width: 110px; }
-  .events-table__event { width: 258px; }
+  /* 表格还在五列形态时，收窄前三列、名称列给地点让位，行内仍保持一行；
+     日期列要容得下「September 28–30」这种最长的月份加区间 */
+  .events-table__year { width: 76px; }
+  .events-table__date { width: 152px; }
+  .events-table__type { width: 108px; }
+  .events-table__event { width: 250px; }
 }
 
 @media (max-width: 900px) {
