@@ -6,11 +6,13 @@
   const pad = (n) => String(n).padStart(2, '0');
 
   const allWorks = (data) => (Array.isArray(data.works) ? data.works : []);
-  const publishedWorks = (data) => allWorks(data).filter((work) => !work.placeholder);
   const allPeople = (data) => (Array.isArray(data.people) ? data.people : []);
   const allEvents = (data) => (Array.isArray(data.events) ? data.events : []);
   const findPerson = (data, slug) => allPeople(data).find((person) => person.slug === slug);
   const siteName = (data) => (data.site && data.site.name) || 'archron project';
+
+  /* 编号写进 works 的 no 后就不跟着数组位置漂移；不写则按当前顺序排号 */
+  const workNo = (work, index) => pad(work && work.no ? work.no : index + 1);
 
   function localizedText(value, lang) {
     if (!value) return '';
@@ -121,116 +123,132 @@
 
   /* ---------- index ---------- */
 
+  /* 每排几本跟着栏数走：三列排 3 本、两列排 2 本、单列排 1 本，
+     这样每一排的板线都是一条不断开的通栏线 */
+  const shelfSlots = () => {
+    if (window.matchMedia('(max-width: 620px)').matches) return 1;
+    if (window.matchMedia('(max-width: 980px)').matches) return 2;
+    return 3;
+  };
+
+  function indexTile(data, work, index) {
+    const li = document.createElement('li');
+    li.className = 'tile';
+    li.style.setProperty('--j', index % shelfSlots());
+
+    const meta = document.createElement('div');
+    meta.className = 'tile__meta';
+    const no = document.createElement('span');
+    no.className = 'tile__no';
+    no.textContent = workNo(work, index);
+    const caption = document.createElement('div');
+    caption.className = 'tile__caption';
+
+    if (!work) {
+      /* 空书位只留板下那格位置，不画框、不写编号以外的任何字 */
+      li.classList.add('tile--empty');
+      const empty = document.createElement('div');
+      empty.className = 'tile__frame';
+      meta.append(no, caption);
+      li.append(empty, meta);
+      return li;
+    }
+
+    const names = personNames(data, work.people);
+    const link = document.createElement('a');
+    link.className = 'tile__link';
+    link.href = `work.html?id=${encodeURIComponent(work.slug)}`;
+    link.setAttribute('aria-label', [work.title, ...names].filter(Boolean).join(', '));
+    if (canPreview && work.preview) link.dataset.preview = work.preview;
+
+    const frame = document.createElement('figure');
+    frame.className = 'tile__frame';
+    if (work.cover) {
+      const img = document.createElement('img');
+      img.className = 'tile__img';
+      img.src = work.cover;
+      img.alt = `Cover of ${work.title}`;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      if (work.coverFit === 'cover') img.style.objectFit = 'cover';
+      frame.appendChild(img);
+    } else {
+      /* 封面未上传时保留版面占位，空 src 会让浏览器回请求页面本身 */
+      frame.classList.add('tile__frame--pending');
+      const pending = document.createElement('span');
+      pending.className = 'tile__empty-label';
+      pending.textContent = 'Cover to follow';
+      frame.appendChild(pending);
+    }
+
+    const title = document.createElement('h2');
+    title.className = 'tile__title';
+    title.textContent = work.title;
+    const by = document.createElement('span');
+    by.className = 'tile__by';
+    by.textContent = [names.join(', '), work.year].filter(Boolean).join(', ');
+    caption.appendChild(title);
+    if (by.textContent) caption.appendChild(by);
+    meta.append(no, caption);
+
+    link.append(frame, meta);
+    li.appendChild(link);
+    return li;
+  }
+
+  /* 板线和编号先到，书从左到右依次站上架子；每一排只触发一次 */
+  function revealShelves(grid) {
+    const shelves = grid.querySelectorAll('.shelf');
+    if (!('IntersectionObserver' in window)) {
+      shelves.forEach((shelf) => shelf.classList.add('is-in'));
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-in');
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+    shelves.forEach((shelf) => observer.observe(shelf));
+  }
+
   function initIndex(data) {
     const grid = document.getElementById('index-grid');
     if (!grid) return;
 
-    allWorks(data).forEach((work, index) => {
-      const li = document.createElement('li');
-      li.className = 'tile';
-      li.style.setProperty('--i', index);
+    const works = allWorks(data);
 
-      if (work.placeholder) {
-        li.classList.add('tile--empty');
+    const render = () => {
+      grid.textContent = '';
+      /* 只把最后一排补满，架子永远收在整排上；不为将来预留空书架 */
+      const slots = shelfSlots();
+      const total = works.length ? Math.ceil(works.length / slots) * slots : slots;
 
-        const frame = document.createElement('div');
-        frame.className = 'tile__frame';
-        const label = document.createElement('span');
-        label.className = 'tile__empty-label';
-        label.textContent = 'Forthcoming';
-        frame.appendChild(label);
-
-        const meta = document.createElement('div');
-        meta.className = 'tile__meta';
-        const no = document.createElement('span');
-        no.className = 'tile__no';
-        no.textContent = pad(index + 1);
-        const caption = document.createElement('div');
-        caption.className = 'tile__caption';
-        const note = document.createElement('span');
-        note.className = 'tile__empty-note';
-        note.textContent = '—';
-        caption.appendChild(note);
-        meta.append(no, caption);
-
-        li.append(frame, meta);
-        grid.appendChild(li);
-        return;
-      }
-
-      const names = personNames(data, work.people);
-      const link = document.createElement('a');
-      link.className = 'tile__link';
-      link.href = `work.html?id=${encodeURIComponent(work.slug)}`;
-      link.setAttribute('aria-label', [work.title, ...names].filter(Boolean).join(', '));
-      if (canPreview && work.preview) link.dataset.preview = work.preview;
-
-      const frame = document.createElement('figure');
-      frame.className = 'tile__frame';
-      const manualRatio =
-        typeof work.coverRatio === 'string' || typeof work.coverRatio === 'number'
-          ? String(work.coverRatio)
-          : '';
-      if (manualRatio) {
-        frame.style.setProperty('--ratio', manualRatio);
-      } else if (work.coverWidth > 0 && work.coverHeight > 0) {
-        frame.style.setProperty('--ratio', `${work.coverWidth} / ${work.coverHeight}`);
-      }
-      if (work.cover) {
-        const img = document.createElement('img');
-        img.className = 'tile__img';
-        img.src = work.cover;
-        img.alt = `Cover of ${work.title}`;
-        img.loading = 'lazy';
-        img.decoding = 'async';
-        if (work.coverFit === 'cover') img.style.objectFit = 'cover';
-        if (work.coverWidth > 0 && work.coverHeight > 0) {
-          img.width = work.coverWidth;
-          img.height = work.coverHeight;
+      for (let start = 0; start < total; start += slots) {
+        const shelf = document.createElement('li');
+        shelf.className = 'shelf';
+        const row = document.createElement('ul');
+        row.className = 'shelf__row';
+        for (let i = start; i < start + slots; i += 1) {
+          row.appendChild(indexTile(data, works[i], i));
         }
-        if (!manualRatio) {
-          img.addEventListener(
-            'load',
-            () => {
-              if (!img.naturalWidth || !img.naturalHeight) return;
-              frame.style.setProperty('--ratio', `${img.naturalWidth} / ${img.naturalHeight}`);
-            },
-            { once: true }
-          );
-        }
-        frame.appendChild(img);
-      } else {
-        /* 封面未上传时保留版面占位，空 src 会让浏览器回请求页面本身 */
-        frame.classList.add('tile__frame--pending');
-        const pending = document.createElement('span');
-        pending.className = 'tile__empty-label';
-        pending.textContent = 'Cover to follow';
-        frame.appendChild(pending);
+        shelf.appendChild(row);
+        grid.appendChild(shelf);
       }
 
-      const meta = document.createElement('div');
-      meta.className = 'tile__meta';
-      const no = document.createElement('span');
-      no.className = 'tile__no';
-      no.textContent = pad(index + 1);
-      const caption = document.createElement('div');
-      caption.className = 'tile__caption';
-      const title = document.createElement('h2');
-      title.className = 'tile__title';
-      title.textContent = work.title;
-      const by = document.createElement('span');
-      by.className = 'tile__by';
-      by.textContent = [names.join(', '), work.year].filter(Boolean).join(', ');
-      caption.appendChild(title);
-      if (by.textContent) caption.appendChild(by);
-      meta.append(no, caption);
+      revealShelves(grid);
+      setupHoverPreview();
+    };
 
-      link.append(frame, meta);
-      li.appendChild(link);
-      grid.appendChild(li);
+    render();
+
+    [620, 980].forEach((px) => {
+      const media = window.matchMedia(`(max-width: ${px}px)`);
+      const onChange = () => render();
+      if (media.addEventListener) media.addEventListener('change', onChange);
+      else media.addListener(onChange);
     });
-
-    setupHoverPreview();
   }
 
   function setupHoverPreview() {
@@ -329,7 +347,7 @@
     const root = document.querySelector('.work');
     if (!root) return;
 
-    const works = publishedWorks(data);
+    const works = allWorks(data);
     const slug = new URLSearchParams(location.search).get('id');
     const index = works.findIndex((work) => work.slug === slug);
 
@@ -781,7 +799,7 @@
     }
 
     const related = allWorks(data)
-      .filter((work) => !work.placeholder && Array.isArray(work.people) && work.people.includes(person.slug));
+      .filter((work) => Array.isArray(work.people) && work.people.includes(person.slug));
 
     if (!related.length) {
       worksSection.hidden = true;
@@ -902,21 +920,31 @@
     return new Date(parts[0], parts[1] - 1, parts[2]);
   }
 
-  function formatEventDate(startValue, endValue) {
+  /* 目录行要把年份单独拆出来对齐成一条可扫读的轴，所以日期分成「区间」和「年份」两段 */
+  function eventDateParts(startValue, endValue) {
     const start = parseDate(startValue);
-    if (!start) return startValue || '';
+    if (!start) return { label: startValue || '', year: '' };
     const end = parseDate(endValue);
     const day = (date) => String(date.getDate()).padStart(2, '0');
     const month = MONTHS[start.getMonth()];
+    const year = String(start.getFullYear());
 
-    if (!end || end <= start) return `${day(start)} ${month} ${start.getFullYear()}`;
+    if (!end || end <= start) return { label: `${day(start)} ${month}`, year };
     if (end.getMonth() === start.getMonth() && end.getFullYear() === start.getFullYear()) {
-      return `${day(start)}–${day(end)} ${month} ${start.getFullYear()}`;
+      return { label: `${day(start)}–${day(end)} ${month}`, year };
     }
     if (end.getFullYear() === start.getFullYear()) {
-      return `${day(start)} ${month} – ${day(end)} ${MONTHS[end.getMonth()]} ${start.getFullYear()}`;
+      return { label: `${day(start)} ${month} – ${day(end)} ${MONTHS[end.getMonth()]}`, year };
     }
-    return `${day(start)} ${month} ${start.getFullYear()} – ${day(end)} ${MONTHS[end.getMonth()]} ${end.getFullYear()}`;
+    return {
+      label: `${day(start)} ${month} – ${day(end)} ${MONTHS[end.getMonth()]}`,
+      year: `${start.getFullYear()}–${end.getFullYear()}`
+    };
+  }
+
+  function formatEventDate(startValue, endValue) {
+    const { label, year } = eventDateParts(startValue, endValue);
+    return [label, year].filter(Boolean).join(' ');
   }
 
   /* 列表与详情页同一套排序：未结束的在前，按开始日期升序；已结束的反向 */
@@ -1002,10 +1030,17 @@
 
       const dateCell = document.createElement('td');
       dateCell.className = 'events-table__date';
+      const { label, year } = eventDateParts(event.start, event.end);
       const date = document.createElement('time');
       if (event.start) date.dateTime = event.start;
-      date.textContent = formatEventDate(event.start, event.end);
+      date.textContent = label;
       dateCell.appendChild(date);
+      if (year) {
+        const yearCell = document.createElement('span');
+        yearCell.className = 'events-table__year';
+        yearCell.textContent = year;
+        dateCell.appendChild(yearCell);
+      }
 
       const titleCell = document.createElement('td');
       const link = document.createElement('a');
