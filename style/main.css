@@ -55,9 +55,12 @@
   --paper: #ffffff;
   --ink: #000000;
   --muted: #666666;
-  --line: #ffcccc;         /* 分区线：页标题、作品标题区 */
-  --line-strong: #ffb3b3;  /* 结构线：页头、页脚 */
-  --line-soft: #ffe6e6;    /* 行线：图注、信息、列表 */
+  /* 细线只有三档，按区块级别选，同一级别全站同一深浅：
+     结构线 = 页头、页脚与图像外框；分区线 = 页标题、区块边界与占位图框；
+     行线 = 逐行的列表与档案行、链接下划线、块内小分隔。 */
+  --line-strong: #ffb3b3;
+  --line: #ffcccc;
+  --line-soft: #ffe6e6;
   --tone: #f2f2f2;
   --accent: #ffaaaa;
 
@@ -191,11 +194,11 @@ a {
 
 .site-head__name {
   font-family: var(--font-display);
-  font-size: 14px;
+  /* 小写的视觉高度比全大写矮一档，站名从 14px 放大到 20px 才压得住页头 */
+  font-size: 20px;
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.085em;
-  text-transform: uppercase;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
   text-decoration: none;
 }
 
@@ -408,7 +411,7 @@ a {
   aspect-ratio: var(--ratio, 3 / 2);
   overflow: hidden;
   background: var(--paper);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -440,10 +443,6 @@ a {
   max-width: var(--max);
   margin: 0 auto;
   padding: clamp(28px, 4vw, 56px) var(--gutter) clamp(28px, 4vw, 44px);
-}
-
-.work__head {
-  border-bottom: 1px solid var(--line);
 }
 
 .work__title {
@@ -485,6 +484,7 @@ a {
   margin: 0;
   padding: 0;
   border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .work__meta:empty {
@@ -526,9 +526,14 @@ a {
   margin: 0;
 }
 
+/* 简介与版权页之间只留版权页上方那一道分区线，避免出现两道深浅不同的线 */
 .work__intro {
   padding: clamp(24px, 3.5vw, 38px) 0;
-  border-bottom: 1px solid var(--line-soft);
+}
+
+/* 双语时正文要铺满整个内容区，右栏才贴得到页面右沿 */
+.work__intro--bilingual {
+  max-width: none;
 }
 
 .work__label {
@@ -563,6 +568,27 @@ a {
   font-weight: 400;
   line-height: var(--lh-read-zh);
   letter-spacing: 0.01em;
+}
+
+/* 双语长文共用同一套栏：左英文右中文，各占一个正文栏宽，中栏右沿贴页面右边。
+   两栏之间的余量交给 space-between，放不下时由下面的断点堆叠成上下两段 */
+.bilingual {
+  display: grid;
+  grid-template-columns: var(--measure) var(--measure);
+  justify-content: space-between;
+  column-gap: clamp(32px, 6vw, 96px);
+}
+
+.bilingual__col {
+  min-width: 0;
+}
+
+.bilingual .bilingual__col p {
+  margin: 0;
+}
+
+.bilingual .bilingual__col p + p {
+  margin-top: 17px;
 }
 
 .work__colophon {
@@ -643,6 +669,27 @@ a {
   letter-spacing: var(--track-read);
   color: var(--muted);
   text-align: right;
+}
+
+/* 未上传的图位只占版不请求文件。高度固定 300px：等真实图片上传后由图片自己的比例决定，
+   预留阶段不必按最终比例撑出五个大空框 */
+.plate--pending .plate__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 300px;
+  background: var(--tone);
+  border: 1px solid var(--line);
+}
+
+.plate__empty-label {
+  font-family: var(--font-display);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 /* 活动详情页复用详情页的栏位与图版，只把相册标签单独提到图片上方 */
@@ -954,16 +1001,18 @@ a {
 
 /* ---------- person ---------- */
 
+/* 简介沿用详情页同一套栏位：空标签列 + 正文列，正文起点全站同一 x */
 .person__body {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  gap: 24px clamp(32px, 6vw, 96px);
+  grid-template-columns: var(--col-label) minmax(0, 1fr);
+  column-gap: var(--gap-col);
   padding: clamp(20px, 3vw, 28px) 0 clamp(32px, 5vw, 48px);
   border-bottom: 1px solid var(--line);
 }
 
-.person__body--solo {
-  grid-template-columns: 1fr;
+.person__bio {
+  grid-column: 2;
+  min-width: 0;
 }
 
 .person__bio p {
@@ -992,8 +1041,9 @@ a {
 }
 
 .person__links {
+  grid-column: 2;
   list-style: none;
-  margin: 0;
+  margin: 24px 0 0;
   padding: 0;
   font-size: var(--text-ui);
   line-height: 1.45;
@@ -1006,7 +1056,7 @@ a {
 
 .person__links a {
   text-decoration: none;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--line-soft);
   padding-bottom: 1px;
 }
 
@@ -1129,14 +1179,16 @@ a {
   letter-spacing: 0.01em;
 }
 
-/* 关注信息沿用详情页元数据表的档案行 */
+/* 关注信息沿用详情页元数据表的档案行：同一 642px 内容带，上下各一道分区线 */
 .about__links {
+  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: var(--col-label) minmax(0, 1fr);
   column-gap: var(--gap-col);
-  margin: 44px 0 0;
+  margin: 36px 0 0;
   padding: 0;
   border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .about__links:empty {
@@ -1171,7 +1223,7 @@ a {
 
 .about__links a {
   text-decoration: none;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--line-soft);
   padding-bottom: 1px;
 }
 
@@ -1182,25 +1234,29 @@ a {
 
 /* ---------- events ---------- */
 
+/* 活动列表固定版式：一行只排日期、名称、地点三项。
+   整块宽度与详情页档案行同一条带（120 + 32 + 490 = 642px），
+   分隔线跟着内容带走，不再铺满页面；以后的同类活动一律照此排布。 */
 .events-list {
   list-style: none;
   margin: 0;
   padding: 0;
+  max-width: calc(var(--col-label) + var(--gap-col) + var(--measure));
 }
 
 .event {
   display: grid;
-  grid-template-columns: var(--col-label) minmax(0, 1fr) auto;
+  grid-template-columns: var(--col-label) minmax(0, 1fr);
   align-items: start;
-  gap: 8px var(--gap-col);
-  padding: 22px 0 24px;
+  gap: 4px var(--gap-col);
+  padding: 20px 0;
   border-bottom: 1px solid var(--line-soft);
 }
 
 .event__date {
   padding-top: 3px;
   font-family: var(--font-display);
-  font-size: var(--text-meta);
+  font-size: var(--text-micro);
   font-weight: 600;
   letter-spacing: var(--track-label);
   text-transform: uppercase;
@@ -1214,12 +1270,13 @@ a {
   min-width: 0;
 }
 
+/* 条目档：与索引卡片作品名、People 归档表姓名同一字号同一字重 */
 .event__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(18px, 1.6vw, 22px);
+  font-size: var(--text-entry);
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.25;
   letter-spacing: var(--track-read);
 }
 
@@ -1233,62 +1290,15 @@ a {
   text-underline-offset: 3px;
 }
 
-.event__title-zh {
-  display: block;
-  margin-top: 4px;
-  font-family: var(--font-sans);
-  font-size: var(--text-read);
-  font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: 0.01em;
-  color: var(--muted);
-}
-
 .event__place {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   font-size: var(--text-ui);
   line-height: 1.45;
   letter-spacing: var(--track-read);
   color: var(--muted);
 }
 
-.event__note {
-  margin: 12px 0 0;
-  max-width: var(--measure);
-  font-size: var(--text-body);
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: var(--track-read);
-  color: var(--muted);
-}
-
-.event__note + .event__note {
-  margin-top: 4px;
-}
-
-.event__note:lang(zh-Hans) {
-  max-width: var(--measure-zh);
-  font-size: var(--text-read-zh);
-  font-weight: 400;
-  line-height: var(--lh-read-zh);
-  letter-spacing: 0.01em;
-}
-
-.event__status {
-  padding: 4px 8px;
-  border: 1px solid var(--line);
-  font-family: var(--font-display);
-  font-size: var(--text-micro);
-  font-weight: 600;
-  letter-spacing: var(--track-label);
-  line-height: 1.45;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--muted);
-}
-
-.event--past .event__title,
-.event--past .event__title-zh {
+.event--past .event__title {
   color: var(--muted);
 }
 
@@ -1317,6 +1327,16 @@ a {
 }
 
 /* ---------- responsive ---------- */
+
+/* 双语两栏需要 2 × 490px 正文栏加栏距，窄于此宽度改为英文在上、中文在下 */
+@media (max-width: 1260px) {
+  .bilingual {
+    grid-template-columns: minmax(0, var(--measure));
+    justify-content: start;
+    row-gap: 24px;
+    column-gap: 0;
+  }
+}
 
 @media (max-width: 980px) {
   .index-grid {
@@ -1354,33 +1374,25 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .person__bio,
+  .person__links {
+    grid-column: 1;
+  }
+
   .work__intro,
   .work__colophon {
     grid-template-columns: 1fr;
     gap: 8px;
   }
 
+  /* 窄屏改成日期在上、名称与地点在下，仍保持同一套固定行结构 */
   .event {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 6px 16px;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
   }
 
   .event__date {
-    grid-column: 1;
-    grid-row: 1;
     padding-top: 0;
-  }
-
-  /* 状态标签和日期同一行，标题行拿回整幅宽度 */
-  .event__status {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-  }
-
-  .event__body {
-    grid-column: 1 / -1;
-    grid-row: 2;
   }
 
   .page-head {
