@@ -589,6 +589,7 @@
     const framed = layout === 'frame';
     const figure = document.createElement('figure');
     figure.className = 'plate';
+    if (image.rule) figure.classList.add('plate--rule');
     if (framed) figure.style.setProperty('--ratio', image.ratio || '148 / 210');
 
     if (!image.src || image.pending) {
@@ -818,7 +819,7 @@
 
       const meta = document.createElement('span');
       meta.className = 'work-list__meta';
-      meta.textContent = [work.year, work.format].filter(Boolean).join(', ');
+      meta.textContent = work.year || '';
 
       link.append(title, meta);
       item.appendChild(link);
@@ -964,8 +965,10 @@
       });
   }
 
-  /* 列表与详情页的地点项：城市在前，展位号在后 */
-  const eventPlace = (event) => [localizedText(event.city, 'en'), event.venue].filter(Boolean).join(' · ');
+  /* 目录只读城市与国家；展馆或展位号只在详情页出现 */
+  const eventCity = (event) =>
+    [localizedText(event.city, 'en'), localizedText(event.country, 'en')].filter(Boolean).join(', ');
+  const eventPlace = (event) => [eventCity(event), event.venue].filter(Boolean).join(' · ');
 
   /* 活动的图片一律按组填：galleries 里每组一个 label 加一组 images。
      只有一组时也可以直接写 imageLabel + images，渲染时归成一组，两种写法版式相同。 */
@@ -1003,7 +1006,7 @@
     table.appendChild(caption);
 
     const colgroup = document.createElement('colgroup');
-    ['events-table__date', '', 'events-table__place'].forEach((className) => {
+    ['events-table__date', 'events-table__event', 'events-table__place'].forEach((className) => {
       const col = document.createElement('col');
       if (className) col.className = className;
       colgroup.appendChild(col);
@@ -1059,7 +1062,7 @@
       const placeCell = document.createElement('td');
       placeCell.className = 'events-table__place';
       placeCell.lang = 'en';
-      placeCell.textContent = eventPlace(event);
+      placeCell.textContent = eventCity(event);
 
       row.append(dateCell, titleCell, placeCell);
       body.appendChild(row);
@@ -1103,7 +1106,6 @@
         dt.textContent = label;
         const dd = document.createElement('dd');
         dd.textContent = value;
-        if (label === 'Dates') dd.className = 'work__meta-date';
         meta.append(dt, dd);
       });
 
