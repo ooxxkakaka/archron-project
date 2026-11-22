@@ -1103,6 +1103,7 @@
         dt.textContent = label;
         const dd = document.createElement('dd');
         dd.textContent = value;
+        if (label === 'Dates') dd.className = 'work__meta-date';
         meta.append(dt, dd);
       });
 
