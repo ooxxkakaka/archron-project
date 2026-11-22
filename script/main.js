@@ -37,6 +37,30 @@
     ].filter(([, list]) => list.length);
   }
 
+  function makeParagraph(lang, text) {
+    const p = document.createElement('p');
+    p.lang = lang;
+    p.textContent = text;
+    return p;
+  }
+
+  /* 双语各成一栏（配合 .bilingual 左右分栏），单语保持原来的连续段落；返回语言种数 */
+  function renderLongText(mount, value) {
+    const parts = textParts(value);
+    parts.forEach(([lang, list]) => {
+      if (parts.length === 1) {
+        list.forEach((text) => mount.appendChild(makeParagraph(lang, text)));
+        return;
+      }
+      const column = document.createElement('div');
+      column.className = 'bilingual__col';
+      list.forEach((text) => column.appendChild(makeParagraph(lang, text)));
+      mount.appendChild(column);
+    });
+    if (parts.length > 1) mount.classList.add('bilingual');
+    return parts.length;
+  }
+
   document.querySelectorAll('[data-site="year"]').forEach((el) => {
     el.textContent = new Date().getFullYear();
   });
@@ -378,7 +402,7 @@
       return;
     }
 
-    renderPlates(images, document.getElementById('work-plates'), setupLightbox(images));
+    renderPlates(images, document.getElementById('work-plates'));
   }
 
   function renderWorkIntro(work) {
@@ -386,15 +410,9 @@
     const body = document.getElementById('work-intro-body');
     if (!section || !body) return;
 
-    const description = work.description || {};
-    textParts(description).forEach(([lang, list]) => {
-      list.forEach((text) => {
-        const p = document.createElement('p');
-        p.lang = lang;
-        p.textContent = text;
-        body.appendChild(p);
-      });
-    });
+    if (renderLongText(body, work.description || {}) > 1) {
+      section.classList.add('work__intro--bilingual');
+    }
 
     if (body.childElementCount) section.hidden = false;
   }
@@ -484,8 +502,15 @@
     return open;
   }
 
-  function renderPlates(images, mount, onOpen, label) {
+  /* 未上传的图位只占版不请求文件，所以灯箱只收录有真实 src 的格子 */
+  function renderPlates(images, mount, label) {
     if (!mount) return;
+
+    const name = label || 'Plate';
+    const openable = images.filter((image) => image.src && !image.pending);
+    const positions = new Map();
+    openable.forEach((image, position) => positions.set(image, position));
+    const open = openable.length ? setupLightbox(openable, name) : null;
 
     const groups = [];
     for (let i = 0; i < images.length; i += 1) {
@@ -506,33 +531,45 @@
       if (group.length === 2) {
         const pair = document.createElement('div');
         pair.className = 'plates__pair';
-        group.forEach((entry) => pair.appendChild(createPlate(entry.image, entry.index, onOpen, label)));
+        group.forEach((entry) => pair.appendChild(createPlate(entry.image, positions, open, name)));
         mount.appendChild(pair);
       } else {
-        mount.appendChild(createPlate(group[0].image, group[0].index, onOpen, label));
+        mount.appendChild(createPlate(group[0].image, positions, open, name));
       }
     });
   }
 
-  function createPlate(image, index, onOpen, label) {
+  function createPlate(image, positions, open, label) {
     const name = label || 'Plate';
     const figure = document.createElement('figure');
     figure.className = 'plate';
 
+    if (!image.src || image.pending) {
+      figure.classList.add('plate--pending');
+      const frame = document.createElement('div');
+      frame.className = 'plate__empty';
+      const note = document.createElement('span');
+      note.className = 'plate__empty-label';
+      note.textContent = 'Image to follow';
+      frame.appendChild(note);
+      figure.appendChild(frame);
+      return figure;
+    }
+
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'plate__btn';
-    button.setAttribute('aria-label', `View ${name.toLowerCase()} ${index + 1}`);
+    button.setAttribute('aria-label', `View ${name.toLowerCase()} ${positions.get(image) + 1}`);
 
     const img = document.createElement('img');
     img.className = 'plate__img';
     img.src = image.src;
-    img.alt = image.caption || `${name} ${index + 1}`;
+    img.alt = image.caption || `${name} ${positions.get(image) + 1}`;
     img.loading = 'lazy';
     img.decoding = 'async';
 
     button.appendChild(img);
-    button.addEventListener('click', () => onOpen(index));
+    button.addEventListener('click', () => open(positions.get(image)));
 
     figure.appendChild(button);
 
@@ -681,14 +718,7 @@
     else role.hidden = true;
 
     const bioMount = document.getElementById('person-bio');
-    textParts(person.bio).forEach(([lang, list]) => {
-      list.forEach((text) => {
-        const p = document.createElement('p');
-        p.lang = lang;
-        p.textContent = text;
-        bioMount.appendChild(p);
-      });
-    });
+    renderLongText(bioMount, person.bio);
     if (!bioMount.childElementCount) {
       const p = document.createElement('p');
       p.className = 'is-muted';
@@ -716,7 +746,6 @@
       });
     } else {
       linksMount.hidden = true;
-      body.classList.add('person__body--solo');
     }
 
     const related = allWorks(data)
@@ -919,15 +948,6 @@
       }
       body.appendChild(title);
 
-      const titleZh = localizedText(event.title, 'zh-Hans');
-      if (titleZh && titleZh !== titleText) {
-        const zh = document.createElement('span');
-        zh.className = 'event__title-zh';
-        zh.lang = 'zh-Hans';
-        zh.textContent = titleZh;
-        body.appendChild(zh);
-      }
-
       const place = [localizedText(event.city, 'en'), event.venue].filter(Boolean).join(' · ');
       if (place) {
         const line = document.createElement('p');
@@ -937,22 +957,7 @@
         body.appendChild(line);
       }
 
-      /* 活动说明只出英文：中英文混排在同一列里字面差太大。
-         中文长文档式仍留在 CSS 里（.event__note:lang(zh-Hans)），需要时把上面这段换回来 */
-      const noteEn = localizedText(event.note, 'en');
-      if (noteEn) {
-        const note = document.createElement('p');
-        note.className = 'event__note';
-        note.lang = 'en';
-        note.textContent = noteEn;
-        body.appendChild(note);
-      }
-
-      const status = document.createElement('span');
-      status.className = 'event__status';
-      status.textContent = upcoming ? 'Upcoming' : 'Past';
-
-      item.append(date, body, status);
+      item.append(date, body);
       mount.appendChild(item);
     });
   }
@@ -1004,16 +1009,21 @@
       document.getElementById('event-intro').hidden = false;
     }
 
-    const images = (Array.isArray(event.images) ? event.images : []).filter((image) => image && image.src);
+    const images = (Array.isArray(event.images) ? event.images : [])
+      .filter((image) => image && (image.src || image.pending));
     if (!images.length) {
-      showNotice('Photographs from this event have not been added yet.');
+      showNotice('Images from this event have not been added yet.');
       return;
     }
 
     const mount = document.getElementById('event-plates');
-    document.getElementById('event-photos-label').hidden = false;
+    const label = localizedText(event.imageLabel, 'en') || 'Photographs';
+    const labelMount = document.getElementById('event-photos-label');
+    labelMount.textContent = label;
+    labelMount.hidden = false;
     mount.hidden = false;
-    renderPlates(images, mount, setupLightbox(images, 'Photo'), 'Photo');
+    /* 读屏文本用单数：Posters → Poster、Photographs → Photograph */
+    renderPlates(images, mount, label.replace(/s$/, ''));
 
     const prev = entries[index - 1];
     const next = entries[index + 1];
