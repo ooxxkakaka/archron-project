@@ -264,30 +264,29 @@ a {
   padding: clamp(28px, 4vw, 56px) var(--gutter) 96px;
 }
 
+/* 一排书 = 一块板；板线由每本书的元数据行各画一段再接成通栏线，
+   所以同一排的书位高必须一致（统一 A5 书位，不再按封面比例变化） */
 .index-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.shelf + .shelf {
+  margin-top: clamp(32px, 4vw, 56px);
+}
+
+.shelf__row {
   list-style: none;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: start;
-  gap: clamp(32px, 4vw, 56px) var(--gap);
+  gap: 0 var(--gap);
   margin: 0;
   padding: 0;
 }
 
 .tile {
-  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  animation-delay: calc(var(--i, 0) * 60ms);
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  min-width: 0;
 }
 
 .tile__link {
@@ -295,16 +294,13 @@ a {
   text-decoration: none;
 }
 
+/* 书位一律 A5：封面比例不对时露出的那层灰底和详情页待补图框同一档 */
 .tile__frame {
   position: relative;
-  margin: 0 0 12px;
-  aspect-ratio: var(--ratio, 148 / 210);
+  margin: 0;
+  aspect-ratio: 148 / 210;
   overflow: hidden;
   background: var(--tone);
-}
-
-.tile:not(.tile--empty) .tile__frame {
-  background: var(--paper);
 }
 
 .tile:not(.tile--empty) .tile__frame::after {
@@ -322,13 +318,44 @@ a {
   object-fit: contain;
 }
 
+/* 空书位只占住板上的位置，不画框、不写字 */
+.tile--empty .tile__frame {
+  background: transparent;
+}
+
+/* 已出版但封面尚未上传的书：仍占住同一个书位，白底描边、只把提示写在框心，
+   不像详情页那样铺灰底——索引整面架子都是图框，灰块会压过真封面 */
+.tile__frame--pending {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+}
+
 .tile__meta {
+  position: relative;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  padding-top: 9px;
-  border-top: 1px solid var(--line-soft);
+  padding-top: 10px;
+}
+
+.tile__meta::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(var(--gap) / -2);
+  right: calc(var(--gap) / -2);
+  border-top: 1px solid var(--line);
+}
+
+.tile:first-child .tile__meta::before {
+  left: 0;
+}
+
+.tile:last-child .tile__meta::before {
+  right: 0;
 }
 
 .tile__no {
@@ -365,24 +392,10 @@ a {
 }
 
 .tile__by {
-  font-size: var(--text-meta);
+  font-size: var(--text-ui);
+  line-height: 1.45;
   letter-spacing: var(--track-read);
   color: var(--muted);
-}
-
-.tile--empty .tile__frame {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--line);
-  background: transparent;
-}
-
-/* 已出版但封面尚未上传的书：占位仍保留同一版面节奏 */
-.tile__frame--pending {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .tile__empty-label {
@@ -394,10 +407,42 @@ a {
   color: var(--muted);
 }
 
-.tile__empty-note {
-  font-size: var(--text-meta);
-  letter-spacing: var(--track-read);
-  color: var(--muted);
+/* 板先到，书从左到右依次落架；滚动进入下一排时重新走一遍 */
+@media (prefers-reduced-motion: no-preference) {
+  .shelf .tile__meta::before {
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    transition-delay: calc(var(--j, 0) * 110ms);
+  }
+
+  .shelf .tile__frame {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: calc(var(--j, 0) * 90ms + 260ms);
+  }
+
+  .shelf .tile__no,
+  .shelf .tile__caption {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    transition-delay: calc(var(--j, 0) * 90ms + 420ms);
+  }
+
+  .shelf.is-in .tile__meta::before {
+    transform: none;
+  }
+
+  .shelf.is-in .tile__frame {
+    opacity: 1;
+    transform: none;
+  }
+
+  .shelf.is-in .tile__no,
+  .shelf.is-in .tile__caption {
+    opacity: 1;
+  }
 }
 
 /* floating preview that follows the cursor */
@@ -1324,6 +1369,13 @@ a {
   border-bottom: 1px solid var(--line-soft);
 }
 
+/* 末列贴着内容区右沿 x=1382，和页头右侧那句说明共用同一条边 */
+.events-table th:last-child,
+.events-table td:last-child {
+  padding-right: 0;
+  text-align: right;
+}
+
 .events-table thead th {
   padding-top: 0;
   padding-bottom: 7px;
@@ -1341,6 +1393,10 @@ a {
 .events-table__place { width: 240px; }
 
 .events-table td.events-table__date {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
   font-family: var(--font-display);
   font-size: var(--text-micro);
   font-weight: 600;
@@ -1348,6 +1404,16 @@ a {
   text-transform: uppercase;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+}
+
+/* 年份贴日期列右沿，纵向排下来就是一条可以扫的轴；未开始的用墨色，已过去的退回灰色 */
+.events-table__year {
+  flex: none;
+  color: var(--ink);
+}
+
+tr.event--past .events-table__year {
+  color: var(--muted);
 }
 
 .events-table td.events-table__place {
@@ -1420,7 +1486,7 @@ a {
 }
 
 @media (max-width: 980px) {
-  .index-grid {
+  .shelf__row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1497,6 +1563,11 @@ a {
     padding-top: 5px;
   }
 
+  /* 窄屏没有右沿那半句说明可以对齐了，末列退回左对齐 */
+  .events-table td:last-child {
+    text-align: left;
+  }
+
   .page-head {
     flex-direction: column;
     align-items: flex-start;
@@ -1519,9 +1590,8 @@ a {
     gap: 4px 14px;
   }
 
-  .index-grid {
+  .shelf__row {
     grid-template-columns: 1fr;
-    gap: 32px;
   }
 
   .plates__pair {
