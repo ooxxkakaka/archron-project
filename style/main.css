@@ -44,16 +44,6 @@
   font-display: swap;
 }
 
-/* 编辑斜体只取 Newsreader 的可变斜体，用在日期、身份、作者与年份；
-   正文和标题不调用它，避免衬线渗进档案的灰度 */
-@font-face {
-  font-family: "Newsreader";
-  src: url("../assets/fonts/newsreader-latin-wght-italic.woff2") format("woff2");
-  font-weight: 200 800;
-  font-style: italic;
-  font-display: swap;
-}
-
 /* ============================================================
    配色与背景
    改背景只需要改下面的 --paper。
@@ -80,7 +70,6 @@
 
   --font-sans: "Inclusive Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --font-display: "Cabin", "Gill Sans", "Gill Sans MT", "PingFang SC", "Hiragino Sans GB", sans-serif;
-  --font-editorial: "Newsreader", Georgia, "Times New Roman", serif;
 
   /* 间距只有这几档，按角色取：大区块 64 / 分节 48 / 组 32 / 项 24 / 文本 16 / 紧贴 8 / 行内 4。
      随屏宽伸缩的大留白仍由 clamp() 负责，固定间距一律从下表取，不再临时写新数值 */
@@ -405,12 +394,9 @@ a {
 }
 
 .tile__by {
-  /* 作者与年份用编辑斜体：书位上唯一的一笔衬线，和标题的 Cabin 拉开层 */
-  font-family: var(--font-editorial);
-  font-style: italic;
   font-size: var(--text-ui);
   line-height: 1.35;
-  letter-spacing: 0;
+  letter-spacing: var(--track-read);
   color: var(--muted);
 }
 
@@ -519,13 +505,11 @@ a {
 /* 署名与标题同一左栏、紧贴标题下沿；层级靠字重与位置，不靠右推 */
 .work__people {
   margin: 0 0 var(--space-item);
-  /* 作者名与人物身份同一笔衬线斜体 */
-  font-family: var(--font-editorial);
-  font-style: italic;
+  font-family: var(--font-display);
   font-size: var(--text-credit);
   font-weight: 400;
   line-height: 1.25;
-  letter-spacing: 0;
+  letter-spacing: var(--track-read);
 }
 
 .work__people a {
@@ -573,13 +557,6 @@ a {
   font-size: var(--text-body);
   line-height: 1.5;
   letter-spacing: var(--track-read);
-}
-
-/* 活动详情里的 DATES 一行与活动目录的日期同一笔编辑斜体 */
-.work__meta-date {
-  font-family: var(--font-editorial);
-  font-style: italic;
-  letter-spacing: 0;
 }
 
 .work__meta dt:last-of-type,
@@ -761,6 +738,20 @@ a {
   border: 0;
   background: none;
   cursor: zoom-in;
+}
+
+/* 白底内页和白色页面同色，图与图的边界会消失；
+   给这类跨页补一道纸边裁切线，裁切范围仍按图片自己的比例 */
+.plate--rule .plate__btn {
+  position: relative;
+}
+
+.plate--rule .plate__btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 1px var(--line);
+  pointer-events: none;
 }
 
 .plate__img {
@@ -1007,13 +998,11 @@ a {
 
 .page-head--stack .page-head__sub {
   margin: var(--space-tight) 0 0;
-  /* 身份用编辑斜体，和姓名的 Cabin 600 形成一轻一重的两行 */
-  font-family: var(--font-editorial);
-  font-style: italic;
+  font-family: var(--font-display);
   font-size: var(--text-credit);
   font-weight: 400;
   line-height: 1.25;
-  letter-spacing: 0;
+  letter-spacing: var(--track-read);
   text-align: left;
 }
 
@@ -1383,11 +1372,11 @@ a {
   border-bottom: 1px solid var(--line-soft);
 }
 
-/* 末列贴着内容区右沿 x=1382，和页头右侧那句说明共用同一条边 */
+/* 末列不再推到整栏右沿：地点紧接名称之后，左对齐 */
 .events-table th:last-child,
 .events-table td:last-child {
   padding-right: 0;
-  text-align: right;
+  text-align: left;
 }
 
 .events-table thead th {
@@ -1402,25 +1391,25 @@ a {
   color: var(--muted);
 }
 
-/* 日期列 160px：留足单个月份区间排一行的宽度，跨年区间才允许折行 */
+/* 日期列 160px：留足单个月份区间排一行的宽度，跨年区间才允许折行。
+   名称列 482px 收在阅读栏右沿 x=700，地点就落在名称之后；
+   最后一列只放城市与国家，行线仍铺满整栏，右侧留空不再挂信息 */
 .events-table__date { width: 160px; }
-.events-table__place { width: 240px; }
+.events-table__event { width: 482px; }
 
 .events-table td.events-table__date {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-tight);
-  /* 日期是这一页唯一的编辑斜体：句首大写收掉标签感，衬线把时间读成一行手写注脚；
-     年份仍留给 Cabin，靠右对齐连成可扫的一列 */
-  font-family: var(--font-editorial);
-  font-style: italic;
-  font-size: var(--text-body);
-  font-weight: 400;
+  font-family: var(--font-display);
+  font-size: var(--text-micro);
+  font-weight: 600;
   line-height: 1.35;
-  letter-spacing: 0;
-  text-transform: none;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
   color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 /* 年份贴日期列右沿，纵向排下来就是一条可以扫的轴；未开始的用墨色，已过去的退回灰色 */
@@ -1512,6 +1501,10 @@ tr.event--past .events-table__year {
   .plates__frames {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  /* 表格还在三列形态时，日期列保持 160px 不折行，名称列收窄给地点让位 */
+  .events-table__date { width: 160px; }
+  .events-table__event { width: 300px; }
 }
 
 @media (max-width: 900px) {
@@ -1584,11 +1577,6 @@ tr.event--past .events-table__year {
 
   .events-table td.events-table__place {
     padding-top: 5px;
-  }
-
-  /* 窄屏没有右沿那半句说明可以对齐了，末列退回左对齐 */
-  .events-table td:last-child {
-    text-align: left;
   }
 
   .page-head {
