@@ -44,6 +44,16 @@
   font-display: swap;
 }
 
+/* 编辑斜体只取 Newsreader 的可变斜体，用在日期、身份、作者与年份；
+   正文和标题不调用它，避免衬线渗进档案的灰度 */
+@font-face {
+  font-family: "Newsreader";
+  src: url("../assets/fonts/newsreader-latin-wght-italic.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* ============================================================
    配色与背景
    改背景只需要改下面的 --paper。
@@ -56,7 +66,7 @@
   --ink: #000000;
   --muted: #666666;
   /* 细线只有三档，按区块级别选，同一级别全站同一深浅：
-     结构线 = 页头、页脚与图像外框；分区线 = 页标题、区块边界与占位图框；
+     结构线 = 页头、页脚；分区线 = 页标题、区块边界、图像外框与占位图框；
      行线 = 逐行的列表与档案行、链接下划线、块内小分隔。 */
   --line-strong: #ffb3b3;
   --line: #ffcccc;
@@ -70,6 +80,17 @@
 
   --font-sans: "Inclusive Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --font-display: "Cabin", "Gill Sans", "Gill Sans MT", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  --font-editorial: "Newsreader", Georgia, "Times New Roman", serif;
+
+  /* 间距只有这几档，按角色取：大区块 64 / 分节 48 / 组 32 / 项 24 / 文本 16 / 紧贴 8 / 行内 4。
+     随屏宽伸缩的大留白仍由 clamp() 负责，固定间距一律从下表取，不再临时写新数值 */
+  --space-block: 64px;
+  --space-section: 48px;
+  --space-group: 32px;
+  --space-item: 24px;
+  --space-text: 16px;
+  --space-tight: 8px;
+  --space-inline: 4px;
 
   /* 字号层级：标签 / 图注 / 界面 / 次级说明 / 长文 / 条目 / 署名 / 页标题 / 作品标题 */
   --text-micro: 10px;
@@ -384,9 +405,12 @@ a {
 }
 
 .tile__by {
+  /* 作者与年份用编辑斜体：书位上唯一的一笔衬线，和标题的 Cabin 拉开层 */
+  font-family: var(--font-editorial);
+  font-style: italic;
   font-size: var(--text-ui);
-  line-height: 1.45;
-  letter-spacing: var(--track-read);
+  line-height: 1.35;
+  letter-spacing: 0;
   color: var(--muted);
 }
 
@@ -494,12 +518,14 @@ a {
 
 /* 署名与标题同一左栏、紧贴标题下沿；层级靠字重与位置，不靠右推 */
 .work__people {
-  margin: 0 0 24px;
-  font-family: var(--font-display);
+  margin: 0 0 var(--space-item);
+  /* 作者名与人物身份同一笔衬线斜体 */
+  font-family: var(--font-editorial);
+  font-style: italic;
   font-size: var(--text-credit);
   font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: var(--track-read);
+  line-height: 1.25;
+  letter-spacing: 0;
 }
 
 .work__people a {
@@ -547,6 +573,13 @@ a {
   font-size: var(--text-body);
   line-height: 1.5;
   letter-spacing: var(--track-read);
+}
+
+/* 活动详情里的 DATES 一行与活动目录的日期同一笔编辑斜体 */
+.work__meta-date {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  letter-spacing: 0;
 }
 
 .work__meta dt:last-of-type,
@@ -973,12 +1006,14 @@ a {
 }
 
 .page-head--stack .page-head__sub {
-  margin: 10px 0 0;
-  font-family: var(--font-display);
+  margin: var(--space-tight) 0 0;
+  /* 身份用编辑斜体，和姓名的 Cabin 600 形成一轻一重的两行 */
+  font-family: var(--font-editorial);
+  font-style: italic;
   font-size: var(--text-credit);
   font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: var(--track-read);
+  line-height: 1.25;
+  letter-spacing: 0;
   text-align: left;
 }
 
@@ -1375,20 +1410,29 @@ a {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 10px;
-  font-family: var(--font-display);
-  font-size: var(--text-micro);
-  font-weight: 600;
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
+  gap: var(--space-tight);
+  /* 日期是这一页唯一的编辑斜体：句首大写收掉标签感，衬线把时间读成一行手写注脚；
+     年份仍留给 Cabin，靠右对齐连成可扫的一列 */
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
 }
 
 /* 年份贴日期列右沿，纵向排下来就是一条可以扫的轴；未开始的用墨色，已过去的退回灰色 */
 .events-table__year {
   flex: none;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: var(--track-label);
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 tr.event--past .events-table__year {
