@@ -3,9 +3,9 @@
     "name": "archron project",
     "tagline": "Selected publications and printed matter.",
     "copyright": "Atelier Archron",
-    "email": "studio@archronproject.com",
+    "email": "archron.project@outlook.com",
     "links": [
-      { "label": "Email", "href": "mailto:studio@archronproject.com", "text": "studio@archronproject.com" },
+      { "label": "Email", "href": "mailto:archron.project@outlook.com", "text": "archron.project@outlook.com" },
       { "label": "Instagram", "href": "https://www.instagram.com/archronproject", "text": "@archronproject" }
     ],
     "about": {
@@ -59,19 +59,38 @@
       "slug": "bonjour-art-book-fair",
       "title": { "en": "Bonjour Art Book Fair", "zh": "不熟艺术书展" },
       "city": { "en": "Shanghai", "zh": "上海" },
-      "venue": "",
+      "venue": "World Expo Exhibition Hall",
       "start": "2026-12-04",
       "end": "2026-12-06",
-      "note": {
-        "en": "Atelier Archron will present recent publications at the fair.",
-        "zh": "Atelier Archron 将携近年出版物参加。"
+      "description": {
+        "en": [
+          "Now in its 54th edition, the fair opens in Shanghai on 4 December 2026 and runs three days at the Shanghai World Expo Exhibition Hall — 2,500 square metres, 185 exhibitors and 100 collaborating makers.",
+          "The programme is framed by what the fair calls “limited freedom” and “given conditions”: a public, educational stance led by makers, with no imposed narrative and no settled conclusion. What the fair builds instead is the space between author and reader, where the viewer’s own reading can begin.",
+          "Four sections run through the fair — Artist’s Book, Handmade Book, Freezine® and Publication. Freezine®, the fair’s long-running project, keeps a space open for artists, designers and publishers to talk through art book publishing. Here the art book is placed once again in re-anchored coordinates: no longer a single object, but a moving possibility.",
+          "Atelier Archron appears with recent titles from the archron project, together with printed extras and related matter."
+        ]
       },
-      "images": [
-        { "src": "assets/bonjour/01.jpg", "layout": "full", "caption": "" },
-        { "src": "assets/bonjour/02.jpg", "layout": "half", "caption": "" },
-        { "src": "assets/bonjour/03.jpg", "layout": "half", "caption": "" }
+      "galleries": [
+        {
+          "label": "Posters",
+          "images": [
+            { "src": "assets/bonjour/01.jpg", "layout": "frame", "caption": "" },
+            { "src": "assets/bonjour/02.jpg", "layout": "frame", "caption": "" },
+            { "src": "assets/bonjour/03.jpg", "layout": "frame", "caption": "" }
+          ]
+        },
+        {
+          "label": "Installation views",
+          "images": [
+            { "pending": true, "layout": "half", "caption": "" },
+            { "pending": true, "layout": "half", "caption": "" },
+            { "pending": true, "layout": "half", "caption": "" },
+            { "pending": true, "layout": "half", "caption": "" },
+            { "pending": true, "layout": "half", "caption": "" },
+            { "pending": true, "layout": "half", "caption": "" }
+          ]
+        }
       ],
-      "imageLabel": "Posters",
       "link": ""
     }
   ],
