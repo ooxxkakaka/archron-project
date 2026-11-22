@@ -638,42 +638,14 @@
     const mount = document.getElementById('people-groups');
     if (!mount) return;
 
-    const people = allPeople(data).filter((person) => person && person.slug && person.name);
+    const people = allPeople(data)
+      .filter((person) => person && person.slug && person.name)
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
+
     if (!people.length) {
       showNotice('No people have been added yet.');
       return;
-    }
-
-    const groups = new Map();
-    people
-      .slice()
-      .sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
-      .forEach((person) => {
-        const initial = person.name
-          .trim()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .charAt(0)
-          .toUpperCase();
-        const key = /[A-Z]/.test(initial) ? initial : '#';
-        if (!groups.has(key)) groups.set(key, []);
-        groups.get(key).push(person);
-      });
-
-    const keys = [...groups.keys()].sort((a, b) => {
-      if (a === '#') return 1;
-      if (b === '#') return -1;
-      return a.localeCompare(b);
-    });
-
-    const alpha = document.getElementById('people-alpha');
-    if (keys.length >= 3) {
-      keys.forEach((letter) => {
-        const a = document.createElement('a');
-        a.href = `#letter-${letter === '#' ? 'other' : letter}`;
-        a.textContent = letter;
-        alpha.appendChild(a);
-      });
     }
 
     const table = document.createElement('table');
@@ -684,24 +656,8 @@
     caption.textContent = 'People';
     table.appendChild(caption);
 
-    const colgroup = document.createElement('colgroup');
-    [
-      ['people-table__letter', '30px'],
-      ['people-table__name', '']
-    ].forEach(([className, width]) => {
-      const col = document.createElement('col');
-      col.className = className;
-      if (width) col.style.width = width;
-      colgroup.appendChild(col);
-    });
-    table.appendChild(colgroup);
-
     const thead = document.createElement('thead');
     const headRow = document.createElement('tr');
-    const letterHead = document.createElement('th');
-    letterHead.scope = 'col';
-    letterHead.className = 'people-table__letter';
-    headRow.appendChild(letterHead);
     const nameHead = document.createElement('th');
     nameHead.scope = 'col';
     nameHead.textContent = 'Name';
@@ -709,34 +665,20 @@
     thead.appendChild(headRow);
     table.appendChild(thead);
 
-    keys.forEach((letter, index) => {
-      const body = document.createElement('tbody');
-      body.id = `letter-${letter === '#' ? 'other' : letter}`;
-
-      groups.get(letter).forEach((person, row) => {
-        const tr = document.createElement('tr');
-
-        const letterCell = document.createElement('th');
-        letterCell.scope = 'rowgroup';
-        letterCell.className = 'people-table__letter';
-        letterCell.textContent = row === 0 ? letter : '';
-        if (row !== 0) letterCell.setAttribute('aria-hidden', 'true');
-        tr.appendChild(letterCell);
-
-        const nameCell = document.createElement('td');
-        const link = document.createElement('a');
-        link.className = 'people-table__name';
-        link.href = `person.html?id=${encodeURIComponent(person.slug)}`;
-        link.textContent = person.name;
-        nameCell.appendChild(link);
-        tr.appendChild(nameCell);
-
-        body.appendChild(tr);
-      });
-
-      table.appendChild(body);
+    const body = document.createElement('tbody');
+    people.forEach((person) => {
+      const tr = document.createElement('tr');
+      const nameCell = document.createElement('td');
+      const link = document.createElement('a');
+      link.className = 'people-table__name';
+      link.href = `person.html?id=${encodeURIComponent(person.slug)}`;
+      link.textContent = person.name;
+      nameCell.appendChild(link);
+      tr.appendChild(nameCell);
+      body.appendChild(tr);
     });
 
+    table.appendChild(body);
     mount.appendChild(table);
   }
 
@@ -937,7 +879,8 @@
     }
     return {
       label: `${day(start)} ${month} – ${day(end)} ${MONTHS[end.getMonth()]}`,
-      year: `${start.getFullYear()}–${end.getFullYear()}`
+      /* 跨年区间按编辑惯例缩写到两位，年份列才排得下一行 */
+      year: `${start.getFullYear()}–${String(end.getFullYear()).slice(-2)}`
     };
   }
 
@@ -986,7 +929,8 @@
       .filter((group) => group.images.length);
   }
 
-  /* 活动目录与 People 同一张档案表：日期 / 名称 / 地点三列，行线铺满整栏 */
+  /* 活动目录与 People 同一张档案表：年份 / 日期 / 类型 / 名称 / 地点五列。
+     年份单列，日期不再重复年份；类型是书展、工作坊一类的活动分类。 */
   function initEvents(data) {
     const mount = document.getElementById('events-list');
     if (!mount) return;
@@ -1006,16 +950,16 @@
     table.appendChild(caption);
 
     const colgroup = document.createElement('colgroup');
-    ['events-table__date', 'events-table__event', 'events-table__place'].forEach((className) => {
+    ['events-table__year', 'events-table__date', 'events-table__type', 'events-table__event', 'events-table__place'].forEach((className) => {
       const col = document.createElement('col');
-      if (className) col.className = className;
+      col.className = className;
       colgroup.appendChild(col);
     });
     table.appendChild(colgroup);
 
     const thead = document.createElement('thead');
     const headRow = document.createElement('tr');
-    ['Dates', 'Event', 'Place'].forEach((text) => {
+    ['Year', 'Dates', 'Type', 'Event', 'Place'].forEach((text) => {
       const th = document.createElement('th');
       th.scope = 'col';
       th.textContent = text;
@@ -1029,19 +973,23 @@
       const row = document.createElement('tr');
       if (!upcoming) row.className = 'event--past';
 
+      const { label, year } = eventDateParts(event.start, event.end);
+
+      const yearCell = document.createElement('td');
+      yearCell.className = 'events-table__year';
+      yearCell.textContent = year || '';
+
       const dateCell = document.createElement('td');
       dateCell.className = 'events-table__date';
-      const { label, year } = eventDateParts(event.start, event.end);
       const date = document.createElement('time');
       if (event.start) date.dateTime = event.start;
       date.textContent = label;
       dateCell.appendChild(date);
-      if (year) {
-        const yearCell = document.createElement('span');
-        yearCell.className = 'events-table__year';
-        yearCell.textContent = year;
-        dateCell.appendChild(yearCell);
-      }
+
+      const typeCell = document.createElement('td');
+      typeCell.className = 'events-table__type';
+      typeCell.lang = 'en';
+      typeCell.textContent = localizedText(event.type, 'en') || '';
 
       const titleCell = document.createElement('td');
       const link = document.createElement('a');
@@ -1064,7 +1012,7 @@
       placeCell.lang = 'en';
       placeCell.textContent = eventCity(event);
 
-      row.append(dateCell, titleCell, placeCell);
+      row.append(yearCell, dateCell, typeCell, titleCell, placeCell);
       body.appendChild(row);
     });
 
@@ -1097,6 +1045,7 @@
     const meta = document.getElementById('event-meta');
     [
       ['Dates', formatEventDate(event.start, event.end)],
+      ['Type', localizedText(event.type, 'en')],
       ['Place', eventPlace(event)],
       ['Status', upcoming ? 'Upcoming' : 'Past']
     ]
