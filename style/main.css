@@ -1022,29 +1022,6 @@ a {
   text-decoration: underline;
 }
 
-.people-alpha {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--line-soft);
-  font-size: var(--text-meta);
-}
-
-.people-alpha:empty {
-  display: none;
-}
-
-.people-alpha a {
-  text-decoration: none;
-  color: var(--muted);
-}
-
-.people-alpha a:hover {
-  color: var(--accent);
-  text-decoration: underline;
-}
-
 /* 目录页的表头紧贴页面标题线，比正文页更近 */
 .page-people .page-head,
 .page-events .page-head {
@@ -1057,10 +1034,6 @@ a {
   max-width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-}
-
-.people-table tbody {
-  scroll-margin-top: 20px;
 }
 
 .people-table th,
@@ -1091,18 +1064,8 @@ a {
   color: var(--muted);
 }
 
-.people-table th.people-table__letter {
-  width: 30px;
-  padding-right: 14px;
-  font-family: var(--font-display);
-  font-size: var(--text-meta);
-  font-weight: 600;
-  letter-spacing: var(--track-label);
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-/* 列宽写在 JS 生成的 <colgroup> 里：字母列 30px，姓名列吸收剩余空间 */
+/* 只有一列姓名，从页面左沿 x=58 起，和 People 标题同一条竖线；
+   姓名按字母顺序排，不再设字母列与跳转条 */
 .people-table__name {
   font-family: var(--font-display);
   font-size: var(--text-entry);
@@ -1391,20 +1354,22 @@ a {
   color: var(--muted);
 }
 
-/* 日期列 160px：留足单个月份区间排一行的宽度，跨年区间才允许折行。
-   名称列 482px 收在阅读栏右沿 x=700，地点就落在名称之后；
-   最后一列只放城市与国家，行线仍铺满整栏，右侧留空不再挂信息 */
-.events-table__date { width: 160px; }
-.events-table__event { width: 482px; }
+/* 五列宽度：年份 84 / 日期 140 / 类型 124 / 名称 294，四列刚好收在阅读栏右沿 x=700；
+   地点列吸收剩余，行线仍铺满整栏，右侧留空不再挂信息 */
+.events-table__year { width: 84px; }
+.events-table__date { width: 140px; }
+.events-table__type { width: 124px; }
+.events-table__event { width: 294px; }
 
-.events-table td.events-table__date {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-tight);
+/* 年份、日期、类型同属索引信息，用同一档小号大写：
+   字重降到 400，和正文的灰度接近，不跟表头的 600 抢；
+   年份用墨色排成一条纵向可扫的轴，日期与类型退灰 */
+.events-table td.events-table__year,
+.events-table td.events-table__date,
+.events-table td.events-table__type {
   font-family: var(--font-display);
   font-size: var(--text-micro);
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.35;
   letter-spacing: var(--track-label);
   text-transform: uppercase;
@@ -1412,16 +1377,15 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
-/* 年份贴日期列右沿，纵向排下来就是一条可以扫的轴；未开始的用墨色，已过去的退回灰色 */
-.events-table__year {
-  flex: none;
-  font-family: var(--font-display);
-  font-style: normal;
-  font-size: var(--text-micro);
-  font-weight: 600;
-  letter-spacing: var(--track-label);
+.events-table td.events-table__year {
   color: var(--ink);
-  font-variant-numeric: tabular-nums;
+}
+
+/* 跨年区间（2026–2027）也要在一行里排开 */
+.events-table th:first-child,
+.events-table td.events-table__year {
+  padding-right: 12px;
+  white-space: nowrap;
 }
 
 tr.event--past .events-table__year {
@@ -1502,9 +1466,11 @@ tr.event--past .events-table__year {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* 表格还在三列形态时，日期列保持 160px 不折行，名称列收窄给地点让位 */
-  .events-table__date { width: 160px; }
-  .events-table__event { width: 300px; }
+  /* 表格还在五列形态时，收窄前三列、名称列给地点让位，行内仍保持一行 */
+  .events-table__year { width: 78px; }
+  .events-table__date { width: 134px; }
+  .events-table__type { width: 110px; }
+  .events-table__event { width: 258px; }
 }
 
 @media (max-width: 900px) {
@@ -1527,12 +1493,6 @@ tr.event--past .events-table__year {
 }
 
 @media (max-width: 760px) {
-  /* 只剩姓名列，窄屏不必把表格拆成块；字母列收到 24px 就够了 */
-  .people-table th.people-table__letter {
-    width: 24px;
-    padding-right: 10px;
-  }
-
   .person__body {
     grid-template-columns: 1fr;
   }
@@ -1548,7 +1508,7 @@ tr.event--past .events-table__year {
     gap: 8px;
   }
 
-  /* 窄屏把三列拆成纵向堆叠：日期在上、名称、地点在下，行线仍铺满整栏 */
+  /* 窄屏把五列拆成三行：年份 / 日期 / 类型一行，名称一行，地点一行，行线仍铺满整栏 */
   .events-table thead {
     display: none;
   }
@@ -1571,8 +1531,22 @@ tr.event--past .events-table__year {
     border-bottom: 0;
   }
 
+  .events-table td.events-table__year,
+  .events-table td.events-table__date,
+  .events-table td.events-table__type {
+    display: inline;
+  }
+
+  .events-table td.events-table__year {
+    padding-right: 10px;
+  }
+
   .events-table td.events-table__date {
-    padding-bottom: 6px;
+    padding-right: 10px;
+  }
+
+  .events-table td.events-table__title {
+    padding-top: 5px;
   }
 
   .events-table td.events-table__place {
