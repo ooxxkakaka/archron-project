@@ -2,6 +2,8 @@
 
 纯静态网站，没有构建步骤，也没有后台。改文件、提交到 GitHub，1–2 分钟后线上自动更新。
 
+排版、网格、字号与细线的规则写在 `DESIGN.md`；这份 README 管内容字段、图片尺寸和发布步骤。加新内容前先看 `DESIGN.md` 的档位表，不要临时定字号或间距。
+
 - `index.html` 出版物索引（书架：一排三本，每本书一道板线，滚动时逐排落架 + 悬停跨页预览）
 - `work.html` 单本出版物详情（大图、并排跨页、灯箱、中英文简介、版权页）
 - `people.html` 人物索引（按首字母分组）
@@ -27,13 +29,14 @@ archron-project/
 ├── about.html             # 关于
 ├── works.json             # 全部内容数据
 ├── favicon.svg            # 浏览器标签页图标
+├── DESIGN.md              # 字体、网格、细线与页面模板规范
 ├── README.md              # 这份说明
 ├── style/
 │   └── main.css           # 全站样式
 ├── script/
 │   └── main.js            # 全站渲染与交互
 └── assets/
-    ├── fonts/             # Inclusive Sans、Cabin 字体与 OFL 授权
+    ├── fonts/             # Inclusive Sans、Cabin、Newsreader 与 OFL 授权
     ├── olivia/
     │   ├── cover.jpg      # 封面 A5（1200 × 1702）
     │   ├── 01.jpg         # 内页
@@ -53,6 +56,7 @@ archron-project/
 | `style/main.css` | 背景色、文字色、细线颜色、字体、留白 | 偶尔 |
 | `index.html` / `work.html` / `people.html` / `person.html` / `events.html` / `event.html` / `about.html` | 页面骨架，一般不用动 | 很少 |
 | `script/main.js` | 读取 JSON、生成页面、悬停预览、灯箱、人物关系、活动排序 | 很少 |
+| `DESIGN.md` | 字体、字号、间距、网格、细线、页面模板；加内容前的取值依据 | 改规范时 |
 
 ## 图片上传规范
 
@@ -391,7 +395,7 @@ python3 -m http.server 8000
 3. 在相关的 `works[].people` 里加上这个 `slug`，人物页会自动列出 TA 参与的出版物。
 4. 人物页地址是 `person.html?id=<slug>`，例如 `person.html?id=jialing-sun`。
 
-人物页在姓名下方单独一行显示 `role`（18px Cabin 400，和详情页署名同档），左对齐、和姓名同栏；常驻城市写进简介正文，不再拼到这一行，因为两项连在一起太长、右对齐又容易被忽略。简介沿用详情页同一套栏位：左边 120px 标签列留空，正文从 x=210 起排（`.person__bio { grid-column: 2 }`），双语时再按 `.bilingual` 分左右两栏；人物如果填了 `links`，链接排在简介下方同一列。People 页按姓名首字母分组。字母跳转条只在出现 3 个以上首字母时显示，人少时保持干净。
+人物页在姓名下方单独一行显示 `role`（18px Newsreader 斜体 400，和详情页署名同一笔编辑斜体），左对齐、和姓名同栏；常驻城市写进简介正文，不再拼到这一行，因为两项连在一起太长、右对齐又容易被忽略。简介沿用详情页同一套栏位：左边 120px 标签列留空，正文从 x=210 起排（`.person__bio { grid-column: 2 }`），双语时再按 `.bilingual` 分左右两栏；人物如果填了 `links`，链接排在简介下方同一列。People 页按姓名首字母分组。字母跳转条只在出现 3 个以上首字母时显示，人少时保持干净。
 
 别名只留一个主名：`jialing-sun` 的 `name` 是 Jialing Sun，Yichang Sun（孙艺畅）是她的另一个名字，所以英文简介正文的第一句也已改成 "Jialing Sun was born…"，避免同一个人在姓名行和简介首句用两个写法。中文简介仍按中文行文习惯以"孙艺畅"开头。以后如果要把别名亮出来，写在 `bio` 正文里，不要再往 `name` 或 `role` 里加第二个名字。
 
@@ -477,11 +481,13 @@ python3 -m http.server 8000
 ```css
 --font-sans: "Inclusive Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 --font-display: "Cabin", "Gill Sans", "Gill Sans MT", "PingFang SC", "Hiragino Sans GB", sans-serif;
+--font-editorial: "Newsreader", Georgia, "Times New Roman", serif;
 ```
 
 - 正文、图注、导航、说明用 **Inclusive Sans**（可变字重 300–700）。它是一款开放授权的无衬线字体，字形清楚、窄屏可读性好。
 - 标题、作品名、栏目名、标签用 **Cabin**，气质接近 Gill Sans：同样出自英国人文主义无衬线传统，但它是 Google Fonts 的开放字体，可以随网站一起托管，不依赖访客电脑里有没有 Gill Sans。
-- 两款字体都放在 `assets/fonts/`，用 `@font-face` 自托管；授权文件 `inclusive-sans-OFL.txt`、`cabin-OFL.txt` 也放在同一目录，部署时一起上传。
+- **Newsreader** 只取可变斜体，用在五处标注：首页书位的作者与年份（12px）、作品详情署名（18px）、人物页身份（18px）、活动目录的日期区间（13px）、活动详情的 DATES（13px）。正文、标题、姓名、年份、图注一律不用衬线，避免衬线渗进档案的灰度。
+- 三款字体都放在 `assets/fonts/`，用 `@font-face` 自托管；授权文件 `inclusive-sans-OFL.txt`、`cabin-OFL.txt`、`newsreader-OFL.txt` 也放在同一目录，部署时一起上传。
 - 中文没有专门的展示字体，标题和正文里的中文会依次落到 PingFang SC、Hiragino Sans GB、Microsoft YaHei。Windows 上如果觉得中文偏细，可以在 `--font-sans` 里把 `"Microsoft YaHei"` 往前挪。
 - 系统里的 Gill Sans 不能上传到网站（授权不允许分发），所以只作为访客电脑恰好安装时的后备，不作为主字体。
 
@@ -490,13 +496,13 @@ python3 -m http.server 8000
 字号、字距：
 
 ```css
---text-micro: 10px;    /* 大写小标签统一档：PROJECT、COLOPHON、YEAR、活动日期 */
+--text-micro: 10px;    /* 大写小标签统一档：PROJECT、COLOPHON、YEAR、活动年份 */
 --text-meta: 11px;     /* 图注、页脚等更轻的辅助文字 */
 --text-ui: 12px;       /* 导航、元数据、说明文字、索引编号 01/02 */
 --text-body: 13px;     /* 版权页、活动地址等次级短说明 */
 --text-read: 15px;     /* 长文阅读档：简介、传记、About 正文 */
 --text-entry: 14px;    /* 条目标题：作品名、人名、书目 */
---text-credit: 18px;   /* 详情页创作者署名 */
+--text-credit: 18px;   /* 详情页署名与人物身份（Newsreader 斜体） */
 --text-page: clamp(30px, 3vw, 44px);      /* Publications / People / Events / About 页标题 */
 --text-display: clamp(36px, 4.8vw, 72px); /* 单本作品标题 */
 
@@ -515,6 +521,8 @@ python3 -m http.server 8000
 --gap-col: 32px;       /* 标签列与内容列之间的栏距 */
 ```
 
+固定间距另有一套七档变量（`--space-block` 64 / `--space-section` 48 / `--space-group` 32 / `--space-item` 24 / `--space-text` 16 / `--space-tight` 8 / `--space-inline` 4），用法见 `DESIGN.md` 第 4 节。段落之间仍是 17px，不并入这套档位。
+
 全站只有一套栏位坐标：`左边距 + --col-label + --gap-col = 内容列左沿`。1440px 下内容列一律落在 x=210（左边距 58 + 120 + 32），About 的正文、详情页的元数据表、ABOUT 简介、COLOPHON、人物简介、活动的说明列全部对齐到这条线，右沿都是 210 + 490 = 700。图片、表格、页标题这类通栏元素才用左边距 58。窄屏（≤760px）标签列收为 96px、栏距 20px，内容列左沿变成 116。要改这套位置，只改这两个变量，不要在单个页面里补 `max-width` 或 `margin: 0 auto`。
 
 只有双语长文会用到第二列：英文仍占 210→700，中文另起一栏、右沿贴页面右边 1382（892→1382），中间余量不写死。这一栏靠 `.bilingual` 的 `space-between` 得到，不是新增的坐标变量，所以单语页面完全不受影响。
@@ -529,15 +537,15 @@ About 的 `lead` 不再做大字导语，和正文走同一档（15px / 380 / 1.
 
 首页是一面书架：`<ol class="index-grid">` 里每一排是一个 `<li class="shelf">`，里面 `<ul class="shelf__row">` 排三格（≤980px 两格、≤620px 一格，脚本按同一个断点重排）。板线不属于排，而属于每一本书——`.tile__meta::before` 在自己格宽内画一道 `--line`，不越过栏距，所以书与书之间是断开的、有间隔的；每排首格自然对齐 x=58，末格对齐 x=1382。正因为同一排的板线要落在同一高度，书位高必须一致，所以首页书位一律锁 A5（148:210），不再跟随每张封面自己的比例；封面比例不对时完整显示，多出来的是 `--tone` 灰底。板下那一行左边是编号、右边是书名与署名，和归档表同一档字号。最后一排不满时用空书位补齐：空位只有一个透明占块撑住格子高度，不画矩形、不画板线、不写编号。
 
-作品详情页分两段结构。头部是一列块：大标题 → 署名，全部贴在左边距 58 上，不做居中。署名用 18px Cabin 400 / -0.01em，紧贴在标题下沿、和标题同一个左栏，默认不带下划线，悬停才变粉色加下划线——这是参考站的做法，Set Margins 把作者名放在标题自己的左栏里，用字重和位置做层级，而不是把名字推到右边。头部以下（YEAR / FORMAT 元数据表、ABOUT 简介、COLOPHON）改成全站那一套 `标签列 + 栏距 + 阅读列` 网格，左沿和 About、活动页一样是 210，右沿 700；图片仍然通栏。之前这里同时存在两套坐标（居中 1180 色带 + 全幅 58 边距），桌面端就会出现"正文在中间、年份和 ABOUT 小字在很左边"的错位，现在不要再用 `max-width: 1180px; margin: 0 auto` 把某一块单独居中。
+作品详情页分两段结构。头部是一列块：大标题 → 署名，全部贴在左边距 58 上，不做居中。署名用 18px Newsreader 斜体 400 / 字距 0，紧贴在标题下沿、和标题同一个左栏，默认不带下划线，悬停才变粉色加下划线——这是参考站的做法，Set Margins 把作者名放在标题自己的左栏里，用字重和位置做层级，而不是把名字推到右边。头部以下（YEAR / FORMAT 元数据表、ABOUT 简介、COLOPHON）改成全站那一套 `标签列 + 栏距 + 阅读列` 网格，左沿和 About、活动页一样是 210，右沿 700；图片仍然通栏。之前这里同时存在两套坐标（居中 1180 色带 + 全幅 58 边距），桌面端就会出现"正文在中间、年份和 ABOUT 小字在很左边"的错位，现在不要再用 `max-width: 1180px; margin: 0 auto` 把某一块单独居中。
 
 People 页只有一列名字：`<table>` + `<thead>` 里只留 NAME 一个列标题，`<colgroup>` 两列——首字母 30px、姓名列不指定宽度、吸收剩余空间，`table-layout: fixed` 保证每行名字位置完全一致，行线铺满页面。单元格内边距 9px / 20px，页面标题线到表头 22px。姓名 14px Cabin 600 黑色，悬停变粉色加下划线。首字母放在每组的第一个单元格（`<th scope="rowgroup">`），宽 30px（含 14px 右内边距），读起来像行号；人数少于 3 个字母组时，顶部的 A–Z 跳转条自动不显示。身份、参与出版物这些字段仍然写在 `works.json` 里，只在人物详情页和人物页底部的列表里显示，索引页不再摊成列。常驻城市不再单列一个字段：它写在 `bio` 正文里（“currently lives and works in Changzhou” / “现居成都”），页面顶部那一行只放 `role`。想恢复多列归档表，在 `script/main.js` 的 `colgroup` 数组和表头那一段把列加回来即可。
 
 移动端（≤760px）People 表不再拆行，姓名列直接跟着 24px 的首字母列走，一行一个名字。同一断点把 `--col-label` 收到 96px、`--gap-col` 收到 20px，Events 表则整张拆成纵向堆叠：隐藏表头，日期、名称、地点各占一行，行线仍然铺满整栏；≤620px 时英文长文行高放宽到 1.6，因为窄屏每行只剩 45 个字符左右——中文本来就是 1.6，所以这一档不再单独覆盖中文。
 
-活动列表改成和 People 同一张档案表：`<table class="events-table">` + `<thead>` 三个列标题 DATES / EVENT / PLACE，`<colgroup>` 里日期列锁 160px、地点列锁 240px、名称列吸收剩余，`table-layout: fixed` 保证每行三项位置完全一致，行线铺满整栏。表头 10px Cabin 600 大写灰色、下线用 `--line` 分区线；行内边距上下各 11px，行线 `--line-soft`。日期格内部两端对齐：左边是区间（10px 大写、等宽数字，`04–06 DECEMBER` 排得下一行，跨年区间才折行），右边贴着 160px 列的右沿是年份（同字号但用墨色），一排看下来年份自成一条可以扫的竖轴，按年份找活动不用逐行读日期。名称 14px Cabin 600 黑色，和首页作品名、People 姓名同一档，有 `slug` 时可点进详情页；地点 12px 灰色，`城市 · 展馆`（或展位号）合成一行，末列取消内边距、右对齐到 x=1382，和页头右侧那句说明共用同一条右沿，PLACE 这个列标题也就落在书名那一行的正上方。已结束的行把名称和年份一起退回 `--muted`。中文标题和 Upcoming / Past 标签都不再出现在目录行里。以后新增活动一律套这张表，条目再多也只是往下加长（每行 41px，12 场仍在一屏内），不要再往目录行里加字段——要加信息就加列，列宽写在 `colgroup` 里，`script/main.js` 的 `initEvents` 和表头那一段一起补。窄屏（≤760px）三列拆成纵向堆叠，末列退回左对齐，年份仍留在日期那一行的右端。
+活动列表改成和 People 同一张档案表：`<table class="events-table">` + `<thead>` 三个列标题 DATES / EVENT / PLACE，`<colgroup>` 里日期列锁 160px、地点列锁 240px、名称列吸收剩余，`table-layout: fixed` 保证每行三项位置完全一致，行线铺满整栏。表头 10px Cabin 600 大写灰色、下线用 `--line` 分区线；行内边距上下各 11px，行线 `--line-soft`。日期格内部两端对齐：左边是区间（13px Newsreader 斜体、句首大写，`04–06 December` 排得下一行，跨年区间才折行），右边贴着 160px 列的右沿是年份（10px Cabin 600 大写、等宽数字、墨色），一排看下来年份自成一条可以扫的竖轴，按年份找活动不用逐行读日期。日期是这一页唯一的编辑斜体，年份仍留在无衬线里。名称 14px Cabin 600 黑色，和首页作品名、People 姓名同一档，有 `slug` 时可点进详情页；地点 12px 灰色，`城市 · 展馆`（或展位号）合成一行，末列取消内边距、右对齐到 x=1382，和页头右侧那句说明共用同一条右沿，PLACE 这个列标题也就落在书名那一行的正上方。已结束的行把名称和年份一起退回 `--muted`。中文标题和 Upcoming / Past 标签都不再出现在目录行里。以后新增活动一律套这张表，条目再多也只是往下加长（每行 41px，12 场仍在一屏内），不要再往目录行里加字段——要加信息就加列，列宽写在 `colgroup` 里，`script/main.js` 的 `initEvents` 和表头那一段一起补。窄屏（≤760px）三列拆成纵向堆叠，末列退回左对齐，年份仍留在日期那一行的右端。
 
-人物页在姓名下方一行只显示 `role`（18px Cabin 400，和详情页署名同档，左对齐同栏），下面的出版物列表不带编号，只保留书名（Cabin 600 / 14px）和右侧年份、开本（12px 灰色）。
+人物页在姓名下方一行只显示 `role`（18px Newsreader 斜体 400，和详情页署名同一笔编辑斜体，左对齐同栏），下面的出版物列表不带编号，只保留书名（Cabin 600 / 14px）和右侧年份、开本（12px 灰色）。
 
 作品详情页的 ABOUT 正文、活动详情页的说明、人物简介、About 正文都走同一档长文：15px / 380 / 1.5 / -0.01em，行宽由 `--measure` 490px 的内容列决定（不再单独给 `max-width`）。中文接在同一元素下面，用 14px / 400 / 1.6 / +0.01em、行宽 35em（`--measure-zh`）。版权页和活动地址属于次级短说明，用 13px / 1.5，不跟长文抢字号。
 
@@ -549,19 +557,20 @@ People 页只有一列名字：`<table>` + `<thead>` 里只留 NAME 一个列标
 
 ## 版式模板（同类页面必须一致）
 
-全站只有四类页面，每一类的字号、间距、线宽都是固定的。新增页面属于哪一类，就复用那一类现成的类名，不要新起字号或自己补 `max-width`。
+全站只有五类页面，每一类的字号、间距、线宽都是固定的。新增页面属于哪一类，就复用那一类现成的类名，不要新起字号或自己补 `max-width`。更完整的档位和取值流程见 `DESIGN.md`。
 
 | 类别 | 现有页面 | 标题 | 正文 | 辅助 | 内容带宽 | 区块线 |
 | --- | --- | --- | --- | --- | --- | --- |
 | 索引页 | `index.html` `people.html` `events.html` `about.html` | 页标题 44px（`--text-page`，窄屏收到 30px） | 无长文 | 页头右侧说明 12px，右对齐 | 通栏（x=58→1382） | 页标题下线通栏 `--line` |
-| 条目列表 | 首页书架、People 归档表、Events 归档表 | 名称 14px / 600（`--text-entry`） | — | 编号 12px / 700、署名与地点 12px（`--text-ui`）、表头与日期 10px 大写（`--text-micro`） | 两张归档表都通栏（x=58→1382），列宽写在 `<colgroup>` 里（People 字母列 30px；Events 日期 160px、地点 240px）；首页一排三格，格宽由栅格平分、格距 `--gap`，每本书下面一道自己的板线 | 表头下线 `--line`，逐行 `--line-soft`，首页板线 `--line`，行高由固定内边距控制（Events 上下各 11px） |
-| 详情页 | `work.html` `event.html` `person.html` | 大标题 72px（`--text-display`） | 长文 15px / 380（双语时中文 14px / 400 另起右栏） | 署名 18px（`--text-credit`）、档案行 dt 10px 大写 + dd 13px | 档案行与简介 642px（x=58→700）；双语正文铺满到 1382 | 档案行上下各一道 `--line`，行内 `--line-soft`；简介与版权页之间只留版权页上方那道 |
+| 条目列表 | 首页书架、People 归档表、Events 归档表 | 名称 14px / 600（`--text-entry`） | — | 编号 12px / 700、署名与地点 12px（`--text-ui`）、表头与活动年份 10px 大写（`--text-micro`）、活动日期 13px 编辑斜体 | 两张归档表都通栏（x=58→1382），列宽写在 `<colgroup>` 里（People 字母列 30px；Events 日期 160px、地点 240px）；首页一排三格，格宽由栅格平分、格距 `--gap`，每本书下面一道自己的板线 | 表头下线 `--line`，逐行 `--line-soft`，首页板线 `--line`，行高由固定内边距控制（Events 上下各 11px） |
+| 详情页 | `work.html` `event.html` | 大标题 72px（`--text-display`） | 长文 15px / 380（双语时中文 14px / 400 另起右栏） | 署名 18px 编辑斜体（`--text-credit`）、档案行 dt 10px 大写 + dd 13px | 档案行与简介 642px（x=58→700）；双语正文铺满到 1382 | 档案行上下各一道 `--line`，行内 `--line-soft`；简介与版权页之间只留版权页上方那道 |
+| 人物页 | `person.html` | 页标题 44px（`--text-page`） | 简介同详情页长文 | 身份 18px 编辑斜体；出版物列表 14px / 12px | 简介 642px（x=58→700）；出版物列表通栏 | 标题下线 `--line`；列表行线 `--line-soft` |
 | 单栏编辑页 | About 正文 | 页标题同索引页 | 长文 15px / 380，行宽 490px | 关注档案行同详情页 | 内容列 x=210→700；档案行 642px | 档案行上下各一道 `--line` |
 
 四条硬规则：
 
 1. 同一个类别里，标题、正文、辅助文字的字号只能来自 `:root` 的档位变量；要调整就改变量，全站一起变。
-2. 段落间距一律 17px（写在 `p + p` 上），区块间距只用 `clamp()` 里现成的那几档，不新增数值。
+2. 段落间距一律 17px（写在 `p + p` 上）；区块间距从 `--space-*` 七档或现成的 `clamp()` 里取，不新增数值。
 3. 一道边界只画一道线，线的深浅按上面那张三档表选，线的宽度跟它所属区块的宽度。目录页（People、Events）的区块就是整栏，行线一律铺满整栏，不收进 642px 内容带；详情页里的档案行仍是 642px 一条带。
 4. 图片只有三档框：`frame` 方框（竖幅单图，跟书架栏位排、单张 ≤420px）、`half` 半栏并排、`full` 满幅，1440 下大约 419px / 645px / 1312px。新增图片只在这三档里选，不写单独的内联宽度；出版物图版和首页书位共用一套配方（完整显示 + 1px `--line` 内描边 + 灰底），首页书位只是比例锁死 A5、不跟随原图；活动页的图像不描边。
 
@@ -571,7 +580,8 @@ People 页只有一列名字：`<table>` + `<thead>` 里只留 NAME 一个列标
 2. 右上角 **+** → **New repository**。Repository name 填 `archron-project`，选 **Public**，点 **Create repository**。
 3. 进入仓库，点 **Add file** → **Upload files**。打开项目文件夹，选中网站文件整体拖进浏览器：
    - 需要上传：七个 HTML（`index` / `work` / `people` / `person` / `events` / `event` / `about`）、`works.json`、`favicon.svg`、`style/`、`script/`、`assets/`、`.nojekyll`。
-   - 不需要上传：`_ai-temp/`、`README.md`。
+   - 说明文档：`README.md`、`DESIGN.md` 不影响页面，愿意在仓库里留档就一起传。
+   - 不需要上传：`_ai-temp/`。
    - `.nojekyll` 是隐藏文件，Finder 里按 `Cmd + Shift + .` 显示；如果没传上，点 **Add file** → **Create new file**，文件名填 `.nojekyll`，内容留空，提交即可。
 4. 点 **Commit changes** 完成第一次上传。
 5. 进入 **Settings** → 左侧 **Pages**。**Source** 选 **Deploy from a branch**，**Branch** 选 `main`，文件夹选 `/(root)`，点 **Save**。
