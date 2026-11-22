@@ -264,8 +264,8 @@ a {
   padding: clamp(28px, 4vw, 56px) var(--gutter) 96px;
 }
 
-/* 一排书 = 一块板；板线由每本书的元数据行各画一段再接成通栏线，
-   所以同一排的书位高必须一致（统一 A5 书位，不再按封面比例变化） */
+/* 一本书一块板：板线只画在自己书位下面，不跨过书与书之间的栏距；
+   同一排书位高必须一致，板线才在同一水平线上（统一 A5 书位，不跟封面比例走） */
 .index-grid {
   list-style: none;
   margin: 0;
@@ -307,7 +307,7 @@ a {
   content: "";
   position: absolute;
   inset: 0;
-  box-shadow: inset 0 0 0 1px var(--line-strong);
+  box-shadow: inset 0 0 0 1px var(--line);
   pointer-events: none;
 }
 
@@ -345,17 +345,9 @@ a {
   content: "";
   position: absolute;
   top: 0;
-  left: calc(var(--gap) / -2);
-  right: calc(var(--gap) / -2);
-  border-top: 1px solid var(--line);
-}
-
-.tile:first-child .tile__meta::before {
   left: 0;
-}
-
-.tile:last-child .tile__meta::before {
   right: 0;
+  border-top: 1px solid var(--line);
 }
 
 .tile__no {
@@ -456,7 +448,7 @@ a {
   aspect-ratio: var(--ratio, 3 / 2);
   overflow: hidden;
   background: var(--paper);
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--line);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -682,18 +674,15 @@ a {
   align-items: start;
 }
 
-/* 图版方框：与首页封面格同一配方（比例框 + contain + 1px 结构线内描边），
-   框宽锁在 420px，也就是首页三列格子的单格宽度。竖幅的海报、封面一律走这一档，
+/* 图版方框：与首页书位同一套栏位（比例框 + contain + 1px 结构线内描边），
+   三栏时一行三张、两栏两张、单栏一张，栏距同为 --gap，一行图版正好铺满版心；
+   单张最宽 420px 就是首页单格的宽度。竖幅的海报、封面一律走这一档，
    图片再大也只在框内缩，不再按原图比例铺满整栏。 */
 .plates__frames {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(26px, 4vw, 58px) clamp(10px, 1.4vw, 22px);
-}
-
-.plates__frames > .plate {
-  flex: 0 1 420px;
-  max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(26px, 4vw, 58px) var(--gap);
+  align-items: start;
 }
 
 .img-frame {
@@ -707,7 +696,7 @@ a {
   content: "";
   position: absolute;
   inset: 0;
-  box-shadow: inset 0 0 0 1px var(--line-strong);
+  box-shadow: inset 0 0 0 1px var(--line);
   pointer-events: none;
 }
 
@@ -716,6 +705,16 @@ a {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* 活动页的图像不描边框：海报照片自带纸张边缘，现场照按自然比例并排，
+   再描一圈会和照片里的纸边打架；出版物图版和首页书位保留 1px 内描边 */
+.event-page .img-frame::after {
+  content: none;
+}
+
+.event-page .img-frame {
+  background: transparent;
 }
 
 .plate {
@@ -795,26 +794,6 @@ a {
 
 .gallery + .work__nav {
   margin-top: clamp(48px, 7vw, 104px);
-}
-
-/* About 与右栏海报缩略图同一行：左栏仍是 642px 内容带，右栏收在页面右沿 x=1382，
-   和双语页中文栏共用一条竖轴。顶边与 About 标签齐平（补上简介自己的上内边距）。
-   右栏放的是图，所以活动简介排单栏英文；两种语言都填时简介铺满整幅，缩略图让位。 */
-.event-lede {
-  display: grid;
-  grid-template-columns: minmax(0, calc(var(--col-label) + var(--gap-col) + var(--measure))) minmax(0, 1fr);
-  align-items: start;
-}
-
-.event-lede--full {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.event-lede__poster {
-  margin: clamp(24px, 3.5vw, 38px) 0 0;
-  justify-self: end;
-  width: 260px;
-  max-width: 100%;
 }
 
 .work__nav {
@@ -1479,14 +1458,14 @@ tr.event--past .events-table__year {
     row-gap: 24px;
     column-gap: 0;
   }
-
-  .event-lede__poster {
-    display: none;
-  }
 }
 
 @media (max-width: 980px) {
   .shelf__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .plates__frames {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1592,6 +1571,10 @@ tr.event--past .events-table__year {
 
   .shelf__row {
     grid-template-columns: 1fr;
+  }
+
+  .plates__frames {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .plates__pair {
