@@ -78,17 +78,6 @@
             { "src": "assets/bonjour/02.jpg", "layout": "frame", "caption": "" },
             { "src": "assets/bonjour/03.jpg", "layout": "frame", "caption": "" }
           ]
-        },
-        {
-          "label": "Installation views",
-          "images": [
-            { "pending": true, "layout": "half", "caption": "" },
-            { "pending": true, "layout": "half", "caption": "" },
-            { "pending": true, "layout": "half", "caption": "" },
-            { "pending": true, "layout": "half", "caption": "" },
-            { "pending": true, "layout": "half", "caption": "" },
-            { "pending": true, "layout": "half", "caption": "" }
-          ]
         }
       ],
       "link": ""
