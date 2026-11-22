@@ -95,7 +95,7 @@
       "pages": "",
       "place": "Chengdu",
       "publisher": "Atelier Archron",
-      "cover": "assets/olivia/cover.jpg",
+      "cover": "assets/olivia/cover-a4.jpg",
       "preview": "assets/olivia/02.jpg",
       "description": {
         "en": "On a mountaintop live Olivia and her family. One day, an evil warlock descends on their little home and stirs up a storm. Olivia, who has never ventured far, must walk alone into the dark forest — a place of magic and sorcery, where forest spirits dwell. Can she find a way to repel the warlock? Sit back, relax, and fall into an adventure that begins by accident, following this wonderfully expressive little girl’s steps.",
@@ -141,7 +141,7 @@
       "pages": "96",
       "place": "Chengdu",
       "publisher": "Atelier Archron",
-      "cover": "assets/boring-life/cover.jpg",
+      "cover": "assets/boring-life/cover-a4.jpg",
       "preview": "assets/boring-life/02.jpg",
       "description": {
         "en": [
@@ -167,7 +167,7 @@
         ]
       },
       "images": [
-        { "src": "assets/boring-life/cover.jpg", "layout": "frame", "caption": "" },
+        { "src": "assets/boring-life/cover.jpg", "layout": "frame", "ratio": "130 / 210", "caption": "" },
         { "src": "assets/boring-life/01.jpg", "layout": "full", "rule": true, "caption": "" },
         { "src": "assets/boring-life/02.jpg", "layout": "full", "rule": true, "caption": "" },
         { "src": "assets/boring-life/03.jpg", "layout": "full", "rule": true, "caption": "" },
