@@ -275,7 +275,7 @@ a {
 }
 
 /* 一本书一块板：板线只画在自己书位下面，不跨过书与书之间的栏距；
-   同一排书位高必须一致，板线才在同一水平线上（统一 A5 书位，不跟封面比例走） */
+   同一排书位高一致，板线才落在同一水平线上 */
 .index-grid {
   list-style: none;
   margin: 0;
@@ -304,13 +304,14 @@ a {
   text-decoration: none;
 }
 
-/* 书位一律 A5：封面比例不对时露出的那层灰底和详情页待补图框同一档 */
+/* 书位一律 A5：封面按 A4 效果图出（底板 + 投影），图比框略宽，缩进来刚好贴完四边；
+   真有空隙时用纸色接住，不垫灰底——一整面架子都是封面，灰块会从边上压过来 */
 .tile__frame {
   position: relative;
   margin: 0;
   aspect-ratio: 148 / 210;
   overflow: hidden;
-  background: var(--tone);
+  background: var(--paper);
 }
 
 .tile:not(.tile--empty) .tile__frame::after {
