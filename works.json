@@ -1,6 +1,6 @@
 {
   "site": {
-    "name": "ARCHRON PROJECT",
+    "name": "archron project",
     "tagline": "Selected publications and printed matter.",
     "copyright": "Atelier Archron",
     "email": "studio@archronproject.com",
@@ -11,18 +11,10 @@
     "about": {
       "languages": ["en"],
       "en": {
-        "lead": "Archron project is a project of Atelier Archron, a studio for image production and visual culture.",
-        "paragraphs": [
-          "The project develops publications with artists, writers and institutions. Format, paper, sequence and distribution are agreed title by title, with the people involved.",
-          "This index gathers a selection of those publications. Each title opens onto a sequence of plates; the People index lists the authors, artists and collaborators behind them."
-        ]
+        "lead": "Archron project is a project of Atelier Archron, a studio for image production and visual culture."
       },
       "zh": {
-        "lead": "Archron project 是 Atelier Archron 的项目计划。Atelier Archron 关注图像生产及视觉文化。",
-        "paragraphs": [
-          "我们与艺术家、写作者和机构共同出版。开本、纸张、编排与发行方式，由参与者针对每一本书逐一商定。",
-          "这里收录其中的一部分出版物。每本书展开为一组版面；People 索引列出参与其中的作者、艺术家与合作者。"
-        ]
+        "lead": "Archron project 是 Atelier Archron 的项目计划。Atelier Archron 关注图像生产及视觉文化。"
       }
     }
   },
@@ -33,9 +25,16 @@
       "role": "Poet, Artist",
       "bio": {
         "en": [
-          "Yichang Sun was born in the waterside towns of Jiangsu, China in 1995, later studied at the School of the Art Institute of Chicago, and currently lives and works in Changzhou. Her practice spans printmaking, painting, and writing, extending into the making of artist books and the running of community workshops. She is drawn to closeness — close enough to see the grooves in bark, the patches of warm and cool light across a shoulder, the small human moments that almost pass unnoticed. Her paintings, her woodblock lines, and her poems share the same instinct: one scene, one person, one fragment, enlarged until it becomes a whole world.",
+          "Jialing Sun was born in the waterside towns of Jiangsu, China in 1995, later studied at the School of the Art Institute of Chicago, and currently lives and works in Changzhou. Her practice spans printmaking, painting, and writing, extending into the making of artist books and the running of community workshops.",
+          "She is drawn to closeness — close enough to see the grooves in bark, the patches of warm and cool light across a shoulder, the small human moments that almost pass unnoticed. Her paintings, her woodblock lines, and her poems share the same instinct: one scene, one person, one fragment, enlarged until it becomes a whole world.",
           "This cross-cultural experience has rooted her work in the space between two worlds. She writes and paints Black musicians and Mexican migrants, a shoplifter in Carrefour and a security guard in a small port town — people from entirely different places and lives who nonetheless share the same fundamental human condition. She adopts an observer’s gaze: attentive, unhurried, and without judgment.",
           "Her artist books A Long Day and Olivia’s Little Stones are held in the permanent collections of the School of the Art Institute of Chicago; her work has also been included in Guanxiang, a group exhibition at the Nanjing University of the Arts. In community practice, she has led woodblock printing workshops at Baidu Bookstore and Lushan Community House, and presented an artist book talk at the Liangxi District Library in Wuxi, bringing printmaking and the art of the book into contemporary community spaces. Her poetry, meanwhile, has appeared in Yangtze River Poetry Journal, Poetry Journal, Star Poetry Monthly, and other publications."
+        ],
+        "zh": [
+          "孙艺畅 1995 年生长于江苏无锡，后就读于芝加哥艺术学院，目前工作、生活于常州。她的创作横跨绘画、写作，同时延伸至艺术家书籍的制作与公共工作坊的实践。",
+          "她习惯把目光贴近事物——近到足以看见树皮的沟壑、光线在肩颈处铺陈的色块，以及那些细小到几乎被忽视的人间瞬间。她的画如此，她刻入木板的线条如此，她的诗也如此：一个场景，一个人，一个碎片，被放大成完整的世界。",
+          "这段横跨东西的经历，使她的创作浸润在两种文化的间隙里。她书写并描绘黑人歌手、墨西哥移民、家乐福里的小偷、小镇上的保安——来自不同国家、过着截然不同生活的人，却共享着生而为人最共通的底色。她偏爱旁观者的视角：不远不近，不凝视，不评判，只发现。",
+          "她的两本艺术家书籍《A Long Day》与《Olivia’s Little Stones》现为芝加哥艺术学院图书馆永久收藏，其作品亦曾参加南京艺术学院群展「观象」。在社区实践层面，她曾在白读书店、麓山社群之家等空间主持木刻版画工作坊，并于无锡梁溪区图书馆举办艺术家书分享会，致力于将版画与书籍艺术带入当代社区语境。与此同时，她的诗歌作品见于《扬子江诗刊》《诗刊》《星星》诗月刊等刊物。"
         ]
       },
       "links": []
@@ -67,7 +66,12 @@
         "en": "Atelier Archron will present recent publications at the fair.",
         "zh": "Atelier Archron 将携近年出版物参加。"
       },
-      "images": [],
+      "images": [
+        { "src": "assets/bonjour/01.jpg", "layout": "full", "caption": "" },
+        { "src": "assets/bonjour/02.jpg", "layout": "half", "caption": "" },
+        { "src": "assets/bonjour/03.jpg", "layout": "half", "caption": "" }
+      ],
+      "imageLabel": "Posters",
       "link": ""
     }
   ],
@@ -155,7 +159,13 @@
           ["96 pages · 130 × 210 mm · English", "Printed in Chengdu, China"]
         ]
       },
-      "images": []
+      "images": [
+        { "src": "assets/boring-life/01.jpg", "pending": true, "layout": "full", "caption": "" },
+        { "src": "assets/boring-life/02.jpg", "pending": true, "layout": "half", "caption": "" },
+        { "src": "assets/boring-life/03.jpg", "pending": true, "layout": "half", "caption": "" },
+        { "src": "assets/boring-life/04.jpg", "pending": true, "layout": "full", "caption": "" },
+        { "src": "assets/boring-life/05.jpg", "pending": true, "layout": "full", "caption": "" }
+      ]
     },
     { "placeholder": true },
     { "placeholder": true },
