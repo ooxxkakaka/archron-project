@@ -58,6 +58,7 @@
     {
       "slug": "bonjour-art-book-fair",
       "title": { "en": "Bonjour Art Book Fair", "zh": "不熟艺术书展" },
+      "type": "Book fair",
       "city": { "en": "Shanghai", "zh": "上海" },
       "country": { "en": "China", "zh": "中国" },
       "venue": "World Expo Exhibition Hall",
