@@ -2,7 +2,7 @@
 
 纯静态网站，没有构建步骤，也没有后台。改文件、提交到 GitHub，1–2 分钟后线上自动更新。
 
-- `index.html` 出版物索引（封面网格 + 悬停跨页预览）
+- `index.html` 出版物索引（书架：一排三本，板线通栏，滚动时逐排落架 + 悬停跨页预览）
 - `work.html` 单本出版物详情（大图、并排跨页、灯箱、中英文简介、版权页）
 - `people.html` 人物索引（按首字母分组）
 - `person.html` 单个人物页（简介 + 参与的出版物）
@@ -57,7 +57,7 @@ archron-project/
 
 ## 图片上传规范
 
-站上只有两类图片内容：出版物的（封面 + 内页）和活动的（海报 + 现场图）。首页的封面格和详情页的图版共用同一套方框配方：按比例撑框、图片完整显示不裁切、四周 1px 结构线内描边。以后加图按下面两张表走，不必再逐张调版式。
+站上只有两类图片内容：出版物的（封面 + 内页）和活动的（海报 + 现场图）。首页书架的书位和详情页的图版共用同一套方框配方：图片完整显示不裁切、四周 1px 结构线内描边。区别只在比例——首页书位一律锁 A5（148:210），这样每一排的板线才是直的；详情页的框仍按图片自己的比例撑开。以后加图按下面两张表走，不必再逐张调版式。
 
 ### 上传前怎么处理
 
@@ -79,7 +79,7 @@ archron-project/
 
 | `layout` | 用在 | 1440 下的宽度 | 说明 |
 | --- | --- | --- | --- |
-| `frame` | 竖幅单图：海报、封面 | 420px 方框，一行最多三张 | 框宽和首页封面格同一档。图片完整缩在框内，四周留白走 `--tone`；框比例默认 A5（148:210），比例差得多就在该项加 `"ratio": "4 / 5"` |
+| `frame` | 竖幅单图：海报、封面 | 420px 方框，一行最多三张 | 框宽和首页书位同一档（1440 下首页每格 419px）。图片完整缩在框内，四周留白走 `--tone`；框比例默认 A5（148:210），比例差得多就在该项加 `"ratio": "4 / 5"` |
 | `half` | 内页、现场图 | 约 645px，相邻两张并排 | 落单的一张仍只占半栏，不会自己铺满 |
 | `full` | 横向大图、跨页全景 | 满幅 1312px | 竖版图不要用这一档，会撑出两层楼高的图 |
 
@@ -90,7 +90,7 @@ archron-project/
 
 | 内容 | 放哪里 | 排法 |
 | --- | --- | --- |
-| 书籍封面 | `works[].cover` | 首页封面格用，A5 竖版；`coverWidth` / `coverHeight` 填像素尺寸减少跳动，`coverRatio` / `coverFit` 只在需要强制框时用 |
+| 书籍封面 | `works[].cover` | 首页书位用，一律按 A5 竖版（148:210）出图，例如 1200×1702；比例不对时封面完整显示、书位上下露灰底，需要裁切填满时加 `coverFit: "cover"` |
 | 书籍内页 | `works[].images` | 跨页用 `full`，单页与细节用 `half`，5–15 张 |
 | 书展海报 | `events[].galleries` 里 `"label": "Posters"` 那一组 | 一律 `frame`，三张一行 |
 | 活动现场图 | `events[].galleries` 里 `"label": "Installation views"` 那一组 | `half` 为主，横场照可给 `full` |
@@ -207,8 +207,6 @@ python3 -m http.server 8000
       "place": "Chengdu",
       "publisher": "Atelier Archron",
       "cover": "assets/olivia/cover.jpg",
-      "coverWidth": 1200,
-      "coverHeight": 1702,
       "preview": "assets/olivia/02.jpg",
       "description": {
         "en": "On a mountaintop live Olivia and her family. One day, an evil warlock descends on their little home and stirs up a storm. Olivia, who has never ventured far, must walk alone into the dark forest — a place of magic and sorcery, where forest spirits dwell. Can she find a way to repel the warlock? Sit back, relax, and fall into an adventure that begins by accident, following this wonderfully expressive little girl’s steps.",
@@ -245,8 +243,7 @@ python3 -m http.server 8000
         { "src": "assets/olivia/04.jpg", "layout": "full", "caption": "" },
         { "src": "assets/olivia/05.jpg", "layout": "full", "caption": "" }
       ]
-    },
-    { "placeholder": true }
+    }
   ]
 }
 ```
@@ -309,13 +306,11 @@ python3 -m http.server 8000
 | `publisher` | 出版机构，例如 `Atelier Archron`；单独一行 |
 | `description` | 中英文简介，见下文；留空则不显示 About 区块。每种语言可以是一整段字符串，也可以写成段落数组，段落之间自动留 17px |
 | `colophon` | 版权页，见下文；留空则不显示 Colophon 区块 |
-| `cover` | 封面图路径；索引里的图片框按图片比例自动伸缩，不裁切。留空（`""`）时索引仍留一格同比例的空白版面，中间标 “Cover to follow”，详情页文字照常显示 |
-| `coverWidth` / `coverHeight` | 封面像素尺寸，可选；填了能在图片载入前先占位，减少跳动 |
-| `coverRatio` | 可选，手动指定图片框比例，例如 `"4 / 5"`；填了就优先使用，不再跟随原图 |
-| `coverFit` | 可选，默认完整显示；填 `"cover"` 会裁切填满 `coverRatio` 指定的框 |
+| `cover` | 封面图路径；首页书位一律 A5 竖框，图片完整显示不裁切。留空（`""`）时那一格仍是同尺寸书位，中间标 “Cover to follow”，详情页文字照常显示 |
+| `coverFit` | 可选，默认完整显示；填 `"cover"` 会裁切填满 A5 书位，用来处理不是 A5 的封面 |
+| `no` | 书架编号，可选；填了就固定用这个号（删掉前面一本时，后面的编号不会跟着往前挪），不填就按 `works` 数组顺序排 |
 | `preview` | 悬停索引封面时跟随光标的图，按原图比例完整显示 |
 | `images` | 详情页图，按顺序排列 |
-| `placeholder: true` | 索引里的 Forthcoming 占位格 |
 
 `images` 里的每一项：
 
@@ -384,14 +379,17 @@ python3 -m http.server 8000
 
 1. 建 `assets/<slug>/`，放入封面和内页图；封面按 A5 竖版处理，内页按 A4 横版或实际版面处理。
 2. 在 `works.json` 的 `works` 数组里复制一份 `olivia` 的条目。
-3. 改 `slug`、`title`（英文按 title case）、`year`、`format`、`place`、`publisher`、图片路径。出版地写 `place`，出版机构写 `publisher`，不要合并成一行。`coverWidth` / `coverHeight` 填封面的实际像素尺寸；不填也能显示，只是加载时可能会轻微跳动。需要固定成特殊比例时加 `coverRatio`；需要裁切填满时再加 `coverFit: "cover"`。`description` 和 `colophon` 要换成新书的内容；新书还没有简介或版权页，就删掉这两个字段，不要留着 Olivia 的文字。
+3. 改 `slug`、`title`（英文按 title case）、`year`、`format`、`place`、`publisher`、图片路径。出版地写 `place`，出版机构写 `publisher`，不要合并成一行。封面按 A5 竖版出图（148:210，例如 1200×1702），首页书位就是这个比例，不用填尺寸。`description` 和 `colophon` 要换成新书的内容；新书还没有简介或版权页，就删掉这两个字段，不要留着 Olivia 的文字。
 4. 把 `people` 改成参与者的 `slug`，多个用逗号隔开：`["jialing-sun", "another-person"]`。
-5. 删掉不需要的 `{ "placeholder": true }`，或把它替换成新书。
-6. 刷新本地页面确认，再推送到 GitHub。
+5. 刷新本地页面确认，再推送到 GitHub。
 
-先只上文字、图片以后再补：把 `cover`、`preview` 留成 `""`，`images` 按将来的排法写好每一条的 `src` 路径并加 `"pending": true`。索引里那一格会保留同比例的空白版面、中间标 “Cover to follow”，详情页按 `layout` 排出同样数量的空框、中间标 “IMAGE TO FOLLOW”，文字、元数据、版权页照常排版；图片和封面到位后，把路径填回同一条目、删掉 `pending` 即可，不需要改代码。《I’m the Curator of My Own Fucking Boring Life》就是按这个状态上传的。
+先只上文字、图片以后再补：把 `cover`、`preview` 留成 `""`，`images` 按将来的排法写好每一条的 `src` 路径并加 `"pending": true`。索引里那一格会保留同样大小的 A5 书位、中间标 “Cover to follow”，详情页按 `layout` 排出同样数量的空框、中间标 “IMAGE TO FOLLOW”，文字、元数据、版权页照常排版；图片和封面到位后，把路径填回同一条目、删掉 `pending` 即可，不需要改代码。《I’m the Curator of My Own Fucking Boring Life》就是按这个状态上传的。
 
-索引编号按 `works` 数组顺序生成，占位格也占一个编号。删掉中间的条目后编号会自动重排。每本书的图片框按各自封面的比例显示；横版封面只是变矮，不会横跨两栏。
+首页是一面书架，不是一张网格。`works` 里有几本就排几本，一排三本（窄屏两本、手机一本），只有最后一排不满时用空书位补齐，所以每一排的板线都是完整一条通栏线，架子永远收在整排上。空书位只有板下的编号，不画矩形、不写文字，表示这一格还空着；不为将来预留整排空架子，两本就只有一排。
+
+编号按 `works` 数组顺序生成；不想让某本书的号跟着数组变动，给它加 `"no": 7`。
+
+滚动是逐排落架：板线先从左到右扫出来，书再从左到右一本本站上去，每一排只在自己滚进视野时演一次，已经上架的不重复；系统开了「减弱动效」就直接是成品状态。书多了不用改任何东西，18 本是六排（约五屏），往下滚就是往下翻架子。
 
 ## 增加一个人物
 
@@ -460,9 +458,9 @@ python3 -m http.server 8000
 
 | 档 | 用在哪里 | 画多宽 |
 | --- | --- | --- |
-| `--line-strong` 结构线 | 页头下线、页脚上线、实体封面的四边外框、图版方框（`frame` 档）与首页封面格的内描边、鼠标悬停预览框 | 页头页脚通栏；图像外框跟着图框 |
-| `--line` 分区线 | 页标题下线、归档表表头下线、详情页档案行上下两道、COLOPHON 上线、上一页/下一页上线、提示条上下、待补图框四边 | 目录页（People、Events）通栏；详情页的档案行、提示条走内容带 642px（120 + 32 + 490）；页标题那道因为右边还有说明文字，所以通栏 |
-| `--line-soft` 行线 | 归档表逐行（People、Events）、档案行 dt/dd、About 关注行、首页格子下的图注行、链接下划线 | 跟它所属的那一块同宽：目录页的区块是整栏，行线就通栏；档案行的区块是 642 带，行线就 642 |
+| `--line-strong` 结构线 | 页头下线、页脚上线、实体封面的四边外框、图版方框（`frame` 档）与首页书位的内描边、鼠标悬停预览框 | 页头页脚通栏；图像外框跟着图框 |
+| `--line` 分区线 | 页标题下线、归档表表头下线、首页书架的板线、详情页档案行上下两道、COLOPHON 上线、上一页/下一页上线、提示条上下、待补图框四边 | 目录页（Publications、People、Events）通栏；详情页的档案行、提示条走内容带 642px（120 + 32 + 490）；页标题那道因为右边还有说明文字，所以通栏 |
+| `--line-soft` 行线 | 归档表逐行（People、Events）、档案行 dt/dd、About 关注行、链接下划线 | 跟它所属的那一块同宽：目录页的区块是整栏，行线就通栏；档案行的区块是 642 带，行线就 642 |
 
 同一道边界只画一道线：详情页档案行的上下两道都是 642 带内的分区线，标题区自己不再补一道通栏线；简介和版权页之间只留版权页上方那一道。以前"满幅线夹着带线""两道深浅不同的线挨着"就是这么来的。
 
@@ -534,7 +532,9 @@ python3 -m http.server 8000
 
 About 的 `lead` 不再做大字导语，和正文走同一档（15px / 380 / 1.5 / -0.01em），只是开篇第一段；`A project of Atelier Archron.` 保持在页标题右侧，和其他页面的标题行一致。
 
-左上角站名是全小写 `archron project`，20px / 700 / 字距 0.02em，不做 `text-transform`。小写没有大写那一排齐整的帽高，同样的字号看着比大写小一圈，所以从原来的 14px 大写放大到 20px 才压得住页头；字距也从大写用的 0.085em 收到 0.02em，小写排紧了才不散。它比导航（12px / 400，未选中为灰色）重一档，第一眼先读到站名，再读到 Publications。当前位置用 600 加下划线，颜色回到黑色。站名文字来自 `works.json` 的 `site.name`，七个 HTML 里的 `<title>`、`og:title` 和 `<a class="site-head__name">` 兜底文本一起写成小写，浏览器标签页和页头才是同一个标识。索引编号 12px / 700 / 0.02em 只出现在首页索引的格子里；详情页大标题上方不再放编号——那一页只有一本作品，编号既没有参照也没有用处。
+左上角站名是全小写 `archron project`，20px / 700 / 字距 0.02em，不做 `text-transform`。小写没有大写那一排齐整的帽高，同样的字号看着比大写小一圈，所以从原来的 14px 大写放大到 20px 才压得住页头；字距也从大写用的 0.085em 收到 0.02em，小写排紧了才不散。它比导航（12px / 400，未选中为灰色）重一档，第一眼先读到站名，再读到 Publications。当前位置用 600 加下划线，颜色回到黑色。站名文字来自 `works.json` 的 `site.name`，七个 HTML 里的 `<title>`、`og:title` 和 `<a class="site-head__name">` 兜底文本一起写成小写，浏览器标签页和页头才是同一个标识。书架编号 12px / 700 / 0.02em 只出现在首页每一排板线下面；详情页大标题上方不再放编号——那一页只有一本作品，编号既没有参照也没有用处。
+
+首页是一面书架：`<ol class="index-grid">` 里每一排是一个 `<li class="shelf">`，里面 `<ul class="shelf__row">` 排三格（≤980px 两格、≤620px 一格，脚本按同一个断点重排）。板线不属于排，而属于每一格——`.tile__meta::before` 各画一道 `--line`，左右各溢出半个 `--gap`，相邻两段在栏距正中接上，首格收到左沿、末格收到右沿，三格拼成一条 x=58→1382 的通栏线。正因为板线要直，书位高必须一致，所以首页书位一律锁 A5（148:210），不再跟随每张封面自己的比例；封面比例不对时完整显示，多出来的是 `--tone` 灰底。板下那一行左边是编号、右边是书名与署名，和归档表同一档字号。最后一排不满时用空书位补齐：空位只有一个透明占块撑住高度和板下的编号，不画矩形。
 
 作品详情页分两段结构。头部是一列块：大标题 → 署名，全部贴在左边距 58 上，不做居中。署名用 18px Cabin 400 / -0.01em，紧贴在标题下沿、和标题同一个左栏，默认不带下划线，悬停才变粉色加下划线——这是参考站的做法，Set Margins 把作者名放在标题自己的左栏里，用字重和位置做层级，而不是把名字推到右边。头部以下（YEAR / FORMAT 元数据表、ABOUT 简介、COLOPHON）改成全站那一套 `标签列 + 栏距 + 阅读列` 网格，左沿和 About、活动页一样是 210，右沿 700；图片仍然通栏。之前这里同时存在两套坐标（居中 1180 色带 + 全幅 58 边距），桌面端就会出现"正文在中间、年份和 ABOUT 小字在很左边"的错位，现在不要再用 `max-width: 1180px; margin: 0 auto` 把某一块单独居中。
 
@@ -542,7 +542,7 @@ People 页只有一列名字：`<table>` + `<thead>` 里只留 NAME 一个列标
 
 移动端（≤760px）People 表不再拆行，姓名列直接跟着 24px 的首字母列走，一行一个名字。同一断点把 `--col-label` 收到 96px、`--gap-col` 收到 20px，Events 表则整张拆成纵向堆叠：隐藏表头，日期、名称、地点各占一行，行线仍然铺满整栏；≤620px 时英文长文行高放宽到 1.6，因为窄屏每行只剩 45 个字符左右——中文本来就是 1.6，所以这一档不再单独覆盖中文。
 
-活动列表改成和 People 同一张档案表：`<table class="events-table">` + `<thead>` 三个列标题 DATES / EVENT / PLACE，`<colgroup>` 里日期列锁 160px、地点列锁 240px、名称列吸收剩余，`table-layout: fixed` 保证每行三项位置完全一致，行线铺满整栏。表头 10px Cabin 600 大写灰色、下线用 `--line` 分区线；行内边距上下各 11px，行线 `--line-soft`。日期 10px 大写、等宽数字，160px 里 `04–06 DECEMBER 2026` 排得下一行，跨年区间才折行；名称 14px Cabin 600 黑色，和首页作品名、People 姓名同一档，有 `slug` 时可点进详情页；地点 12px 灰色，`城市 · 展馆`（或展位号）合成一行。已结束的行只把名称改回 `--muted`。中文标题和 Upcoming / Past 标签都不再出现在目录行里。以后新增活动一律套这张表，不要再往目录行里加字段——要加信息就加列，列宽写在 `colgroup` 里，`script/main.js` 的 `initEvents` 和表头那一段一起补。
+活动列表改成和 People 同一张档案表：`<table class="events-table">` + `<thead>` 三个列标题 DATES / EVENT / PLACE，`<colgroup>` 里日期列锁 160px、地点列锁 240px、名称列吸收剩余，`table-layout: fixed` 保证每行三项位置完全一致，行线铺满整栏。表头 10px Cabin 600 大写灰色、下线用 `--line` 分区线；行内边距上下各 11px，行线 `--line-soft`。日期格内部两端对齐：左边是区间（10px 大写、等宽数字，`04–06 DECEMBER` 排得下一行，跨年区间才折行），右边贴着 160px 列的右沿是年份（同字号但用墨色），一排看下来年份自成一条可以扫的竖轴，按年份找活动不用逐行读日期。名称 14px Cabin 600 黑色，和首页作品名、People 姓名同一档，有 `slug` 时可点进详情页；地点 12px 灰色，`城市 · 展馆`（或展位号）合成一行，末列取消内边距、右对齐到 x=1382，和页头右侧那句说明共用同一条右沿，PLACE 这个列标题也就落在书名那一行的正上方。已结束的行把名称和年份一起退回 `--muted`。中文标题和 Upcoming / Past 标签都不再出现在目录行里。以后新增活动一律套这张表，条目再多也只是往下加长（每行 41px，12 场仍在一屏内），不要再往目录行里加字段——要加信息就加列，列宽写在 `colgroup` 里，`script/main.js` 的 `initEvents` 和表头那一段一起补。窄屏（≤760px）三列拆成纵向堆叠，末列退回左对齐，年份仍留在日期那一行的右端。
 
 人物页在姓名下方一行只显示 `role`（18px Cabin 400，和详情页署名同档，左对齐同栏），下面的出版物列表不带编号，只保留书名（Cabin 600 / 14px）和右侧年份、开本（12px 灰色）。
 
@@ -561,7 +561,7 @@ People 页只有一列名字：`<table>` + `<thead>` 里只留 NAME 一个列标
 | 类别 | 现有页面 | 标题 | 正文 | 辅助 | 内容带宽 | 区块线 |
 | --- | --- | --- | --- | --- | --- | --- |
 | 索引页 | `index.html` `people.html` `events.html` `about.html` | 页标题 44px（`--text-page`，窄屏收到 30px） | 无长文 | 页头右侧说明 12px，右对齐 | 通栏（x=58→1382） | 页标题下线通栏 `--line` |
-| 条目列表 | 首页格子、People 归档表、Events 归档表 | 名称 14px / 600（`--text-entry`） | — | 标签与日期 10px 大写（`--text-micro`）、地点与年份 12px（`--text-ui`） | 两张归档表都通栏（x=58→1382），列宽写在 `<colgroup>` 里（People 字母列 30px；Events 日期 160px、地点 240px）；首页格子随栅格 | 表头下线 `--line`，逐行 `--line-soft`，行高由固定内边距控制（Events 上下各 11px） |
+| 条目列表 | 首页书架、People 归档表、Events 归档表 | 名称 14px / 600（`--text-entry`） | — | 编号 12px / 700、署名与地点 12px（`--text-ui`）、表头与日期 10px 大写（`--text-micro`） | 两张归档表都通栏（x=58→1382），列宽写在 `<colgroup>` 里（People 字母列 30px；Events 日期 160px、地点 240px）；首页一排三格，格宽由栅格平分、格距 `--gap`，板线通栏 | 表头下线 `--line`，逐行 `--line-soft`，首页板线 `--line`，行高由固定内边距控制（Events 上下各 11px） |
 | 详情页 | `work.html` `event.html` `person.html` | 大标题 72px（`--text-display`） | 长文 15px / 380（双语时中文 14px / 400 另起右栏） | 署名 18px（`--text-credit`）、档案行 dt 10px 大写 + dd 13px | 档案行与简介 642px（x=58→700）；双语正文铺满到 1382；活动页 ABOUT 右栏可挂一张 260px 海报，收在 x=1382 | 档案行上下各一道 `--line`，行内 `--line-soft`；简介与版权页之间只留版权页上方那道 |
 | 单栏编辑页 | About 正文 | 页标题同索引页 | 长文 15px / 380，行宽 490px | 关注档案行同详情页 | 内容列 x=210→700；档案行 642px | 档案行上下各一道 `--line` |
 
@@ -570,7 +570,7 @@ People 页只有一列名字：`<table>` + `<thead>` 里只留 NAME 一个列标
 1. 同一个类别里，标题、正文、辅助文字的字号只能来自 `:root` 的档位变量；要调整就改变量，全站一起变。
 2. 段落间距一律 17px（写在 `p + p` 上），区块间距只用 `clamp()` 里现成的那几档，不新增数值。
 3. 一道边界只画一道线，线的深浅按上面那张三档表选，线的宽度跟它所属区块的宽度。目录页（People、Events）的区块就是整栏，行线一律铺满整栏，不收进 642px 内容带；详情页里的档案行仍是 642px 一条带。
-4. 图片只有三档框：`frame` 420px 方框（竖幅单图）、`half` 半栏并排、`full` 满幅，宽度分别锁 420px / 645px / 1312px。新增图片只在这三档里选，不写单独的内联宽度；方框配方全站同一套（比例框 + 完整显示 + 1px `--line-strong` 内描边），和首页封面格一致。
+4. 图片只有三档框：`frame` 420px 方框（竖幅单图）、`half` 半栏并排、`full` 满幅，宽度分别锁 420px / 645px / 1312px。新增图片只在这三档里选，不写单独的内联宽度；方框配方全站同一套（完整显示 + 1px `--line-strong` 内描边 + 灰底），首页书位用的是同一套配方，只是比例锁死 A5、不跟随原图。
 
 ## 发布到 GitHub Pages
 
