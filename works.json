@@ -167,7 +167,7 @@
         ]
       },
       "images": [
-        { "src": "assets/boring-life/cover.jpg", "layout": "frame", "ratio": "130 / 210", "caption": "" },
+        { "src": "assets/boring-life/cover.jpg", "layout": "frame", "caption": "" },
         { "src": "assets/boring-life/01.jpg", "layout": "full", "rule": true, "caption": "" },
         { "src": "assets/boring-life/02.jpg", "layout": "full", "rule": true, "caption": "" },
         { "src": "assets/boring-life/03.jpg", "layout": "full", "rule": true, "caption": "" },
