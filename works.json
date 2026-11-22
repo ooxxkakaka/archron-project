@@ -127,7 +127,7 @@
       },
       "images": [
         { "src": "assets/olivia/cover.jpg", "layout": "frame", "caption": "" },
-        { "src": "assets/olivia/01.jpg", "layout": "full", "caption": "" },
+        { "src": "assets/olivia/01.jpg", "layout": "half", "caption": "" },
         { "src": "assets/olivia/02.jpg", "layout": "half", "caption": "" },
         { "src": "assets/olivia/03.jpg", "layout": "half", "caption": "" }
       ]
@@ -168,10 +168,10 @@
       },
       "images": [
         { "src": "assets/boring-life/cover.jpg", "layout": "frame", "ratio": "130 / 210", "caption": "" },
-        { "src": "assets/boring-life/01.jpg", "layout": "full", "rule": true, "caption": "" },
-        { "src": "assets/boring-life/02.jpg", "layout": "full", "rule": true, "caption": "" },
-        { "src": "assets/boring-life/03.jpg", "layout": "full", "rule": true, "caption": "" },
-        { "src": "assets/boring-life/04.jpg", "layout": "full", "rule": true, "caption": "" }
+        { "src": "assets/boring-life/01.jpg", "layout": "half", "rule": true, "caption": "" },
+        { "src": "assets/boring-life/02.jpg", "layout": "half", "rule": true, "caption": "" },
+        { "src": "assets/boring-life/03.jpg", "layout": "half", "rule": true, "caption": "" },
+        { "src": "assets/boring-life/04.jpg", "layout": "half", "rule": true, "caption": "" }
       ]
     }
   ]
