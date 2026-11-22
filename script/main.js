@@ -123,8 +123,7 @@
 
   /* ---------- index ---------- */
 
-  /* 每排几本跟着栏数走：三列排 3 本、两列排 2 本、单列排 1 本，
-     这样每一排的板线都是一条不断开的通栏线 */
+  /* 每排几本跟着栏数走：三列排 3 本、两列排 2 本、单列排 1 本 */
   const shelfSlots = () => {
     if (window.matchMedia('(max-width: 620px)').matches) return 1;
     if (window.matchMedia('(max-width: 980px)').matches) return 2;
@@ -136,6 +135,15 @@
     li.className = 'tile';
     li.style.setProperty('--j', index % shelfSlots());
 
+    if (!work) {
+      /* 空书位只占住格子，不画框、不画板线、不写编号 */
+      li.classList.add('tile--empty');
+      const empty = document.createElement('div');
+      empty.className = 'tile__frame';
+      li.append(empty);
+      return li;
+    }
+
     const meta = document.createElement('div');
     meta.className = 'tile__meta';
     const no = document.createElement('span');
@@ -143,16 +151,6 @@
     no.textContent = workNo(work, index);
     const caption = document.createElement('div');
     caption.className = 'tile__caption';
-
-    if (!work) {
-      /* 空书位只留板下那格位置，不画框、不写编号以外的任何字 */
-      li.classList.add('tile--empty');
-      const empty = document.createElement('div');
-      empty.className = 'tile__frame';
-      meta.append(no, caption);
-      li.append(empty, meta);
-      return li;
-    }
 
     const names = personNames(data, work.people);
     const link = document.createElement('a');
@@ -1108,38 +1106,15 @@
         meta.append(dt, dd);
       });
 
-    const lede = document.getElementById('event-lede');
     const intro = document.getElementById('event-intro');
     const languages = renderLongText(document.getElementById('event-intro-body'), event.description);
     if (languages) {
-      /* 两种语言都填时简介铺满整幅左右分栏，右栏的海报缩略图让位给中文 */
-      if (languages > 1) {
-        intro.classList.add('work__intro--bilingual');
-        lede.classList.add('event-lede--full');
-      }
+      /* 两种语言都填时简介铺满整幅左右分栏 */
+      if (languages > 1) intro.classList.add('work__intro--bilingual');
       intro.hidden = false;
     }
 
     const galleries = eventGalleries(event);
-
-    const keyVisual = languages === 1 && galleries.length
-      ? galleries[0].images.find((image) => image.src && !image.pending)
-      : null;
-    if (keyVisual) {
-      const figure = document.createElement('figure');
-      figure.className = 'event-lede__poster';
-      const frame = document.createElement('div');
-      frame.className = 'img-frame';
-      frame.style.setProperty('--ratio', keyVisual.ratio || '148 / 210');
-      const image = document.createElement('img');
-      image.src = keyVisual.src;
-      image.alt = keyVisual.caption || `${title} — ${galleries[0].label.toLowerCase()}`;
-      image.loading = 'lazy';
-      image.decoding = 'async';
-      frame.appendChild(image);
-      figure.appendChild(frame);
-      lede.appendChild(figure);
-    }
 
     const mount = document.getElementById('event-galleries');
     if (galleries.length) {
