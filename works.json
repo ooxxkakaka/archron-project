@@ -127,9 +127,9 @@
       },
       "images": [
         { "src": "assets/olivia/cover.jpg", "layout": "frame", "caption": "" },
-        { "src": "assets/olivia/01.jpg", "layout": "half", "caption": "" },
-        { "src": "assets/olivia/02.jpg", "layout": "half", "caption": "" },
-        { "src": "assets/olivia/03.jpg", "layout": "half", "caption": "" }
+        { "src": "assets/olivia/01.jpg", "layout": "half", "rule": true, "caption": "" },
+        { "src": "assets/olivia/02.jpg", "layout": "half", "rule": true, "caption": "" },
+        { "src": "assets/olivia/03.jpg", "layout": "half", "rule": true, "caption": "" }
       ]
     },
     {
