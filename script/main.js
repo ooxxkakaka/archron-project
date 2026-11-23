@@ -537,9 +537,9 @@
     return { positions, open: openable.length ? setupLightbox(openable, 'Plate') : null };
   }
 
-  /* 图版三档：frame 是 420px 方框（海报、封面这类竖幅单图），half 两栏并排，
-     full 满幅（只给横向大图和跨页）。连续同档的图归到同一个容器里，
-     末尾落单的 half 仍然只占半栏。 */
+  /* 图版两档：frame 是 420px 方框（封面、海报这类竖幅单图），
+     其余一律 half 两栏并排（内页跨页、现场图），每张约 645px；
+     末尾落单的一张仍然只占半栏，不铺满整栏。 */
   function renderPlates(images, mount, label, shared) {
     if (!mount) return;
 
@@ -557,22 +557,18 @@
         mount.appendChild(row);
         return;
       }
-      if (layout === 'half') {
-        for (let i = 0; i < group.length; i += 2) {
-          const pair = document.createElement('div');
-          pair.className = 'plates__pair';
-          group.slice(i, i + 2).forEach((image) => pair.appendChild(plate(image)));
-          mount.appendChild(pair);
-        }
-        return;
+      for (let i = 0; i < group.length; i += 2) {
+        const pair = document.createElement('div');
+        pair.className = 'plates__pair';
+        group.slice(i, i + 2).forEach((image) => pair.appendChild(plate(image)));
+        mount.appendChild(pair);
       }
-      group.forEach((image) => mount.appendChild(plate(image)));
     };
 
     let layout = null;
     let group = [];
     images.forEach((image) => {
-      const current = image.layout || 'full';
+      const current = image.layout === 'frame' ? 'frame' : 'half';
       if (current !== layout) {
         flush(layout, group);
         layout = current;
@@ -585,7 +581,7 @@
 
   function createPlate(image, positions, open, label) {
     const name = label || 'Plate';
-    const layout = image.layout || 'full';
+    const layout = image.layout === 'frame' ? 'frame' : 'half';
     const framed = layout === 'frame';
     const figure = document.createElement('figure');
     figure.className = 'plate';
@@ -861,7 +857,8 @@
     return new Date(parts[0], parts[1] - 1, parts[2]);
   }
 
-  /* 目录行要把年份单独拆出来对齐成一条可扫读的轴，所以日期分成「区间」和「年份」两段 */
+  /* 目录行要把年份单独拆出来对齐成一条可扫读的轴，所以日期分成「区间」和「年份」两段。
+     日期一律月份在前、日期在后，同一列的月份从同一处起排，纵向能扫。 */
   function eventDateParts(startValue, endValue) {
     const start = parseDate(startValue);
     if (!start) return { label: startValue || '', year: '' };
@@ -870,15 +867,15 @@
     const month = MONTHS[start.getMonth()];
     const year = String(start.getFullYear());
 
-    if (!end || end <= start) return { label: `${day(start)} ${month}`, year };
+    if (!end || end <= start) return { label: `${month} ${day(start)}`, year };
     if (end.getMonth() === start.getMonth() && end.getFullYear() === start.getFullYear()) {
-      return { label: `${day(start)}–${day(end)} ${month}`, year };
+      return { label: `${month} ${day(start)}–${day(end)}`, year };
     }
     if (end.getFullYear() === start.getFullYear()) {
-      return { label: `${day(start)} ${month} – ${day(end)} ${MONTHS[end.getMonth()]}`, year };
+      return { label: `${month} ${day(start)} – ${MONTHS[end.getMonth()]} ${day(end)}`, year };
     }
     return {
-      label: `${day(start)} ${month} – ${day(end)} ${MONTHS[end.getMonth()]}`,
+      label: `${month} ${day(start)} – ${MONTHS[end.getMonth()]} ${day(end)}`,
       /* 跨年区间按编辑惯例缩写到两位，年份列才排得下一行 */
       year: `${start.getFullYear()}–${String(end.getFullYear()).slice(-2)}`
     };
