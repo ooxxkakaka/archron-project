@@ -853,6 +853,15 @@ a {
 
 /* ---------- lightbox ---------- */
 
+/* 灯箱底布定档纯黑（对比页的 A）。深灰 #2b2b2b、中性灰 #4d4a46、
+   暖深灰 #332f2a、浅棕 #a99781 是当时看过的其余四档，浅棕要把文字换成深色。
+   换色只改 --veil 一处，文字与图注跟着它走 */
+:root {
+  --veil: #000000;
+  --veil-ink: #ffffff;
+  --veil-muted: #a3a3a3;
+}
+
 .lightbox {
   width: 100vw;
   max-width: none;
@@ -861,12 +870,12 @@ a {
   margin: 0;
   padding: clamp(28px, 4vw, 56px);
   border: 0;
-  background: #000000;
-  color: #ffffff;
+  background: var(--veil);
+  color: var(--veil-ink);
 }
 
 .lightbox::backdrop {
-  background: #000000;
+  background: var(--veil);
 }
 
 .lightbox[open] {
@@ -897,7 +906,7 @@ a {
   min-height: 1em;
   margin-top: 14px;
   font-size: var(--text-meta);
-  color: #a3a3a3;
+  color: var(--veil-muted);
   text-align: center;
 }
 
@@ -907,7 +916,7 @@ a {
   left: clamp(20px, 4vw, 56px);
   margin: 0;
   font-size: var(--text-meta);
-  color: #a3a3a3;
+  color: var(--veil-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -917,7 +926,7 @@ a {
   right: clamp(16px, 4vw, 56px);
   padding: 2px 0;
   border: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid var(--veil-muted);
   background: none;
   color: inherit;
   font: inherit;
@@ -1066,7 +1075,7 @@ a {
   color: var(--muted);
 }
 
-/* 只有一列姓名，从页面左沿 x=58 起，和 People 标题同一条竖线；
+/* 姓名从页面左沿 x=58 起，和 People 标题同一条竖线；
    姓名按字母顺序排，不再设字母列与跳转条 */
 .people-table__name {
   font-family: var(--font-display);
@@ -1505,49 +1514,50 @@ tr.event--past .events-table__year {
     gap: 8px;
   }
 
-  /* 窄屏把五列拆成三行：年份 / 日期 / 类型一行，名称一行，地点一行，行线仍铺满整栏 */
+  /* 窄屏按字段各占一行：时间 / 类型 / 名称 / 地点，行线仍铺满整栏。
+     年份与日期同属时间，留在第一行 */
   .events-table thead {
     display: none;
   }
 
   .events-table,
-  .events-table tbody,
-  .events-table tr,
-  .events-table td {
+  .events-table tbody {
     display: block;
     width: auto;
   }
 
   .events-table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 12px;
     padding: 16px 0;
     border-bottom: 1px solid var(--line-soft);
   }
 
   .events-table td {
+    display: block;
+    width: auto;
     padding: 0;
     border-bottom: 0;
   }
 
-  .events-table td.events-table__year,
-  .events-table td.events-table__date,
   .events-table td.events-table__type {
-    display: inline;
+    order: 2;
+    flex-basis: 100%;
+    padding-top: 6px;
   }
 
-  .events-table td.events-table__year {
-    padding-right: 10px;
-  }
-
-  .events-table td.events-table__date {
-    padding-right: 10px;
-  }
-
-  .events-table td.events-table__title {
-    padding-top: 5px;
+  .events-table td.events-table__event {
+    order: 3;
+    flex-basis: 100%;
+    padding-top: 6px;
   }
 
   .events-table td.events-table__place {
-    padding-top: 5px;
+    order: 4;
+    flex-basis: 100%;
+    padding-top: 6px;
   }
 
   .page-head {
