@@ -4,6 +4,8 @@
   const canPreview = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const pad = (n) => String(n).padStart(2, '0');
+  /* 图版锚点：#p03 是灯箱里的第 3 张，全站从 1 起两位补零 */
+  const PLATE_HASH = /^#p(\d{2})$/;
 
   const allWorks = (data) => (Array.isArray(data.works) ? data.works : []);
   const allPeople = (data) => (Array.isArray(data.people) ? data.people : []);
@@ -490,12 +492,21 @@
       if (next < 0 || next >= images.length) return;
       current = next;
       update();
+      writeHash();
     }
 
     function open(position) {
+      if (!images[position]) return;
       current = position;
       update();
+      writeHash();
       if (!lightbox.open) lightbox.showModal();
+    }
+
+    /* 地址里只留锚点，不开新的历史记录：关掉灯箱后浏览器后退仍然回上一站 */
+    function writeHash() {
+      const hash = `#p${pad(current + 1)}`;
+      if (location.hash !== hash) history.replaceState(null, '', `${location.pathname}${location.search}${hash}`);
     }
 
     prevButton.addEventListener('click', () => step(-1));
@@ -514,6 +525,30 @@
         step(1);
       }
     });
+
+    lightbox.addEventListener('close', () => {
+      if (PLATE_HASH.test(location.hash)) {
+        history.replaceState(null, '', `${location.pathname}${location.search}`);
+      }
+    });
+
+    /* 手动改地址栏的 #p05 也能跳；锚点被删掉时关掉灯箱 */
+    window.addEventListener('hashchange', () => {
+      const match = PLATE_HASH.exec(location.hash);
+      if (!match) {
+        if (lightbox.open) lightbox.close();
+        return;
+      }
+      const position = Number(match[1]) - 1;
+      if (position >= 0 && position < images.length) {
+        current = position;
+        update();
+      }
+    });
+
+    /* 深链：带 #p03 打开页面直接进第三张，用于把某一页发给别人看 */
+    const initial = PLATE_HASH.exec(location.hash);
+    if (initial) open(Number(initial[1]) - 1);
 
     return open;
   }
@@ -989,6 +1024,7 @@
       typeCell.textContent = localizedText(event.type, 'en') || '';
 
       const titleCell = document.createElement('td');
+      titleCell.className = 'events-table__event';
       const link = document.createElement('a');
       link.className = 'events-table__title';
       link.lang = 'en';
